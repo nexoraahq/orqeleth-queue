@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Your Queue — ORQELETH AI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(140, 80, 255, 0.18),
+                    transparent 38%
+                ),
+                #050507;
+
+            color: #ffffff;
+
+            padding-bottom: 80px;
+        }
+
+        .container {
+            width: min(1100px, 92%);
+            margin: auto;
+        }
+
+        /* NAV */
+
+        .nav {
+            height: 75px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-bottom: 1px solid
+                rgba(255,255,255,0.07);
+        }
+
+        .logo {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 3px;
+        }
+
+        .logo span {
+            color: #b875ff;
+        }
+
+        .live {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            color: #9c9ca7;
+
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #72f5b1;
+
+            box-shadow:
+                0 0 12px #72f5b1;
+        }
+
+        /* HERO */
+
+        .hero {
+            text-align: center;
+
+            padding: 70px 0 45px;
+        }
+
+        .verified {
+            display: inline-flex;
+
+            padding: 8px 14px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(114,245,177,0.06);
+
+            border: 1px solid
+                rgba(114,245,177,0.18);
+
+            color: #9df5c4;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            letter-spacing: 1.5px;
+        }
+
+        .hero h1 {
+            margin-top: 25px;
+
+            font-size:
+                clamp(42px, 7vw, 76px);
+
+            line-height: 0.98;
+
+            letter-spacing: -4px;
+        }
+
+        .gradient {
+            background:
+                linear-gradient(
+                    100deg,
+                    #ffffff,
+                    #b875ff
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .hero p {
+            max-width: 600px;
+
+            margin: 20px auto 0;
+
+            color: #9696a2;
+
+            line-height: 1.7;
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 14px;
+
+            margin-top: 20px;
+        }
+
+        .stat {
+            padding: 28px 20px;
+
+            background:
+                rgba(255,255,255,0.035);
+
+            border: 1px solid
+                rgba(255,255,255,0.09);
+
+            border-radius: 20px;
+
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #777783;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            letter-spacing: 1.5px;
+        }
+
+        .stat-number {
+            margin-top: 13px;
+
+            font-size: 42px;
+            font-weight: 800;
+
+            letter-spacing: -2px;
+        }
+
+        .stat-number.purple {
+            color: #c084ff;
+        }
+
+        /* CLIMB CARD */
+
+        .climb-card {
+            margin-top: 16px;
+
+            padding: 32px;
+
+            text-align: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(145,80,255,0.13),
+                    rgba(255,255,255,0.035)
+                );
+
+            border: 1px solid
+                rgba(180,120,255,0.22);
+
+            border-radius: 24px;
+        }
+
+        .climb-card h2 {
+            font-size: 27px;
+
+            letter-spacing: -1px;
+        }
+
+        .climb-card p {
+            margin-top: 9px;
+
+            color: #9696a2;
+
+            font-size: 14px;
+        }
+
+        .target {
+            margin-top: 20px;
+
+            color: #c084ff;
+
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        /* SHARE */
+
+        .share-section {
+            margin-top: 16px;
+
+            padding: 28px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border: 1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: 22px;
+        }
+
+        .share-section h3 {
+            font-size: 17px;
+        }
+
+        .share-section > p {
+            margin-top: 7px;
+
+            color: #777783;
+
+            font-size: 13px;
+        }
+
+        .link-box {
+            margin-top: 20px;
+
+            display: flex;
+            gap: 9px;
+        }
+
+        .link-box input {
+            min-width: 0;
+            flex: 1;
+
+            height: 50px;
+
+            padding: 0 15px;
+
+            color: #bdbdc7;
+
+            background:
+                rgba(255,255,255,0.045);
+
+            border: 1px solid
+                rgba(255,255,255,0.09);
+
+            border-radius: 12px;
+
+            outline: none;
+        }
+
+        .copy-btn {
+            height: 50px;
+
+            padding: 0 20px;
+
+            border: 0;
+
+            border-radius: 12px;
+
+            background: #ffffff;
+
+            color: #08080b;
+
+            font-weight: 800;
+
+            cursor: pointer;
+        }
+
+        .share-buttons {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 9px;
+
+            margin-top: 12px;
+        }
+
+        .share-btn {
+            min-height: 48px;
+
+            border-radius: 12px;
+
+            border: 1px solid
+                rgba(255,255,255,0.08);
+
+            background:
+                rgba(255,255,255,0.035);
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            transition: 0.2s ease;
+        }
+
+        .share-btn:hover {
+            background:
+                rgba(255,255,255,0.09);
+
+            transform: translateY(-2px);
+        }
+
+        /* SHARE MESSAGE */
+
+        .message-card {
+            margin-top: 14px;
+
+            padding: 20px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border: 1px solid
+                rgba(255,255,255,0.07);
+
+            border-radius: 16px;
+        }
+
+        .message-card small {
+            color: #777783;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            letter-spacing: 1px;
+        }
+
+        .message-card p {
+            margin-top: 10px;
+
+            color: #c8c8d0;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+        /* REWARD */
+
+        .reward {
+            margin-top: 16px;
+
+            padding: 26px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border: 1px solid
+                rgba(255,255,255,0.08);
+        }
+
+        .reward-label {
+            color: #b875ff;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+        }
+
+        .reward h3 {
+            margin-top: 10px;
+
+            font-size: 23px;
+        }
+
+        .reward p {
+            margin-top: 8px;
+
+            color: #858590;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .hero {
+                padding-top: 55px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 38px;
+            }
+
+            .climb-card {
+                padding: 26px 20px;
+            }
+
+            .share-section {
+                padding: 22px 16px;
+            }
+
+            .link-box {
+                flex-direction: column;
+            }
+
+            .copy-btn {
+                width: 100%;
+            }
+
+            .share-buttons {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .share-btn:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .hero h1 {
+                letter-spacing: -2.5px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- NAV -->
+
+    <nav class="nav">
+
+        <div class="logo">
+            ORQELETH <span>AI</span>
+        </div>
+
+        <div class="live">
+            <div class="dot"></div>
+            RACE LIVE
+        </div>
+
+    </nav>
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="verified">
+            ✓ YOU'RE IN THE RACE
+        </div>
+
+        <h1>
+            Welcome to the
+            <span class="gradient">
+                Founding Race.
+            </span>
+        </h1>
+
+        <p>
+            Your registration is verified.
+            Now climb the leaderboard by bringing
+            legitimate verified members into the queue.
+        </p>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                YOUR POSITION
+            </div>
+
+            <div
+                class="stat-number"
+                id="queuePosition"
+            >
+                #—
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                VERIFIED REFERRALS
+            </div>
+
+            <div
+                class="stat-number purple"
+                id="referralCount"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                LEADERBOARD RANK
+            </div>
+
+            <div
+                class="stat-number"
+                id="leaderboardRank"
+            >
+                #—
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CLIMB -->
+
+    <section class="climb-card">
+
+        <h2>
+            🚀 Share & Climb
+        </h2>
+
+        <p>
+            Every legitimate verified referral
+            moves you closer to the Founding 100.
+        </p>
+
+        <div
+            class="target"
+            id="targetMessage"
+        >
+            Get your first verified referral
+            to start climbing.
+        </div>
+
+    </section>
+
+
+    <!-- SHARE -->
+
+    <section class="share-section">
+
+        <h3>
+            YOUR REFERRAL LINK
+        </h3>
+
+        <p>
+            Share this link with friends and
+            invite them to join the race.
+        </p>
+
+
+        <div class="link-box">
+
+            <input
+                id="referralLink"
+                type="text"
+                readonly
+                value="Loading..."
+            >
+
+            <button
+                class="copy-btn"
+                onclick="copyReferralLink()"
+            >
+                COPY LINK
+            </button>
+
+        </div>
+
+
+        <div class="share-buttons">
+
+            <button
+                class="share-btn"
+                onclick="shareWhatsApp()"
+            >
+                WhatsApp
+            </button>
+
+            <button
+                class="share-btn"
+                onclick="shareX()"
+            >
+                X
+            </button>
+
+            <button
+                class="share-btn"
+                onclick="shareTelegram()"
+            >
+                Telegram
+            </button>
+
+            <button
+                class="share-btn"
+                onclick="shareFacebook()"
+            >
+                Facebook
+            </button>
+
+            <button
+                class="share-btn"
+                onclick="nativeShare()"
+            >
+                More
+            </button>
+
+        </div>
+
+
+        <div class="message-card">
+
+            <small>
+                YOUR SHARE MESSAGE
+            </small>
+
+            <p id="shareMessage">
+                I'm racing to become one of
+                the ORQELETH Founding 100. 🏆
+
+                Top 100 get special Enterprise
+                access.
+
+                Join the queue:
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- REWARD -->
+
+    <section class="reward">
+
+        <div class="reward-label">
+            YOUR CURRENT REWARD TIER
+        </div>
+
+        <h3 id="rewardTitle">
+            Keep climbing.
+        </h3>
+
+        <p id="rewardDescription">
+            Reach the Top 100 to compete for
+            the Founding 100 badge and campaign
+            rewards.
+        </p>
+
+    </section>
+
+</div>
+
+
+<script>
+
+    let referralLink = "";
+
+
+    // ==========================================
+    // GET USER DATA
+    // ==========================================
+
+    async function loadDashboard() {
+
+        try {
+
+            const response =
+                await fetch("/api/me");
+
+            if (!response.ok) {
+
+                window.location.href = "/";
+
+                return;
+            }
+
+            const data =
+                await response.json();
+
+
+            document.getElementById(
+                "queuePosition"
+            ).textContent =
+                "#" +
+                data.queue_position.toLocaleString();
+
+
+            document.getElementById(
+                "referralCount"
+            ).textContent =
+                data.verified_referrals;
+
+
+            document.getElementById(
+                "leaderboardRank"
+            ).textContent =
+                data.rank
+                    ? "#" + data.rank
+                    : "#—";
+
+
+            referralLink =
+                data.referral_link;
+
+
+            document.getElementById(
+                "referralLink"
+            ).value =
+                referralLink;
+
+
+            document.getElementById(
+                "shareMessage"
+            ).textContent =
+                `I'm racing to become one of the ORQELETH Founding 100. 🏆
+
+Top 100 get special Enterprise access.
+
+Join the queue: ${referralLink}`;
+
+
+            document.getElementById(
+                "targetMessage"
+            ).textContent =
+                data.referrals_needed > 0
+                    ? `${data.referrals_needed} verified referrals needed to reach the Top 100.`
+                    : "You're currently in the Top 100. Keep climbing! 🔥";
+
+
+            document.getElementById(
+                "rewardTitle"
+            ).textContent =
+                data.reward_title;
+
+
+            document.getElementById(
+                "rewardDescription"
+            ).textContent =
+                data.reward_description;
+
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // COPY
+    // ==========================================
+
+    async function copyReferralLink() {
+
+        await navigator.clipboard.writeText(
+            referralLink
+        );
+
+        const button =
+            document.querySelector(
+                ".copy-btn"
+            );
+
+        button.textContent =
+            "COPIED ✓";
+
+        setTimeout(() => {
+
+            button.textContent =
+                "COPY LINK";
+
+        }, 1800);
+
+    }
+
+
+    // ==========================================
+    // SHARE MESSAGE
+    // ==========================================
+
+    function getShareText() {
+
+        return `I'm racing to become one of the ORQELETH Founding 100. 🏆
+
+Top 100 get special Enterprise access.
+
+Join the queue: ${referralLink}`;
+
+    }
+
+
+    // ==========================================
+    // WHATSAPP
+    // ==========================================
+
+    function shareWhatsApp() {
+
+        const url =
+            "https://wa.me/?text=" +
+            encodeURIComponent(
+                getShareText()
+            );
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    }
+
+
+    // ==========================================
+    // X
+    // ==========================================
+
+    function shareX() {
+
+        const url =
+            "https://twitter.com/intent/tweet?text=" +
+            encodeURIComponent(
+                getShareText()
+            );
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    }
+
+
+    // ==========================================
+    // TELEGRAM
+    // ==========================================
+
+    function shareTelegram() {
+
+        const url =
+            "https://t.me/share/url?url=" +
+            encodeURIComponent(
+                referralLink
+            ) +
+            "&text=" +
+            encodeURIComponent(
+                getShareText()
+            );
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    }
+
+
+    // ==========================================
+    // FACEBOOK
+    // ==========================================
+
+    function shareFacebook() {
+
+        const url =
+            "https://www.facebook.com/sharer/sharer.php?u=" +
+            encodeURIComponent(
+                referralLink
+            );
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    }
+
+
+    // ==========================================
+    // NATIVE MOBILE SHARE
+    // ==========================================
+
+    async function nativeShare() {
+
+        if (!navigator.share) {
+
+            await copyReferralLink();
+
+            return;
+        }
+
+        try {
+
+            await navigator.share({
+
+                title:
+                    "ORQELETH AI — Founding 100",
+
+                text:
+                    getShareText(),
+
+                url:
+                    referralLink
+
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Share cancelled."
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // LOAD
+    // ==========================================
+
+    loadDashboard();
+
+</script>
+
+</body>
+</html>

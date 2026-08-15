@@ -1,0 +1,6 @@
+.gitignore
+Orqeleth Queue.txt
+app.py
+requirements.txt
+static/
+templates/

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verified — ORQELETH AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+
+            font-family: Inter, Arial, sans-serif;
+
+            background:
+                radial-gradient(circle at 50% 20%, rgba(150, 70, 255, 0.16), transparent 35%),
+                radial-gradient(circle at 20% 80%, rgba(100, 40, 255, 0.10), transparent 30%),
+                #050509;
+
+            color: white;
+        }
+
+        .verify-card {
+            width: 100%;
+            max-width: 560px;
+
+            padding: 48px 36px;
+
+            text-align: center;
+
+            background: rgba(20, 20, 28, 0.78);
+            border: 1px solid rgba(180, 120, 255, 0.22);
+            border-radius: 28px;
+
+            box-shadow:
+                0 30px 100px rgba(0, 0, 0, 0.65),
+                0 0 80px rgba(140, 70, 255, 0.10);
+
+            backdrop-filter: blur(20px);
+        }
+
+        .logo {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #c184ff;
+            margin-bottom: 32px;
+        }
+
+        .success-icon {
+            width: 72px;
+            height: 72px;
+
+            margin: 0 auto 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: rgba(163, 91, 255, 0.14);
+            border: 1px solid rgba(190, 130, 255, 0.35);
+
+            font-size: 34px;
+        }
+
+        h1 {
+            font-size: clamp(32px, 7vw, 52px);
+            line-height: 1.05;
+            margin-bottom: 18px;
+            letter-spacing: -2px;
+        }
+
+        .gradient {
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #c084ff
+            );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #a6a6b2;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .founding {
+            margin: 28px 0;
+
+            padding: 18px;
+
+            border-radius: 16px;
+
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.08);
+
+            color: #d9c2ff;
+            font-weight: 600;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 18px;
+
+            min-height: 52px;
+            padding: 0 28px;
+
+            border-radius: 14px;
+
+            background: linear-gradient(
+                135deg,
+                #ffffff,
+                #d8c2ff
+            );
+
+            color: #09090d;
+
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 35px rgba(170, 100, 255, 0.25);
+        }
+
+        @media (max-width: 600px) {
+            .verify-card {
+                padding: 38px 22px;
+                border-radius: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="verify-card">
+
+        <div class="logo">
+            ORQELETH AI
+        </div>
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h1>
+            You're <span class="gradient">verified.</span>
+        </h1>
+
+        <p>
+            Your ORQELETH AI queue registration has been successfully verified.
+        </p>
+
+        <div class="founding">
+            🏆 You can now compete for the Founding 100.
+        </div>
+
+        <a href="/" class="button">
+            RETURN TO ORQELETH →
+        </a>
+
+    </main>
+
+</body>
+</html>
