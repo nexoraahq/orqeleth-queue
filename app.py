@@ -599,25 +599,17 @@ def register():
     # ========================================================
     # SEND EMAIL — ONLY ONCE
     # ========================================================
+try:
 
-    try:
-
-        email_response = resend.Emails.send({
-
-            "from":
-                from_email = "ORQELETH AI <noreply@joinorqeleth.com>"
-
-            "to":
-                [email],
-
-            "subject":
-                "Verify your ORQELETH AI registration",
-
-            "html": f"""
-                <div style="
-                    font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: auto;
+    email_response = resend.Emails.send({
+        "from": "ORQELETH AI <noreply@joinorqeleth.com>",
+        "to": [email],
+        "subject": "Verify your ORQELETH AI registration",
+        "html": f"""
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: auto;
                     padding: 30px;
                     background: #0b0b12;
                     color: #ffffff;
