@@ -596,97 +596,83 @@ def register():
         }), 500
 
 
-    # ========================================================
-    # SEND EMAIL — ONLY ONCE
-    # ========================================================
-try:
+        # =========================================================
+    # SEND VERIFICATION EMAIL
+    # =========================================================
 
-    email_response = resend.Emails.send({
-        "from": "ORQELETH AI <noreply@joinorqeleth.com>",
-        "to": [email],
-        "subject": "Verify your ORQELETH AI registration",
-        "html": f"""
+    try:
+        email_response = resend.Emails.send({
+            "from": "ORQELETH AI <noreply@joinorqeleth.com>",
+            "to": [email],
+            "subject": "Verify your ORQELETH AI registration",
+            "html": f"""
             <div style="
                 font-family: Arial, sans-serif;
                 max-width: 600px;
                 margin: auto;
-                    padding: 30px;
-                    background: #0b0b12;
-                    color: #ffffff;
-                    border-radius: 16px;
-                ">
+                padding: 30px;
+                background: #0b0b12;
+                color: #ffffff;
+                border-radius: 16px;
+            ">
+                <h1>ORQELETH AI</h1>
 
-                    <h1>
-                        ORQELETH AI
-                    </h1>
+                <h2>Verify your registration</h2>
 
-                    <h2>
-                        Welcome, {name}.
-                    </h2>
+                <p>
+                    Welcome to the ORQELETH AI early-access queue.
+                </p>
 
-                    <p>
-                        Your ORQELETH AI early-access
-                        registration has been received.
-                    </p>
+                <p>
+                    Click the button below to verify your email address.
+                </p>
 
-                    <p>
-                        Your current queue position:
-                        <strong>
-                            #{queue_position}
-                        </strong>
-                    </p>
+                <a href="{verification_url}"
+                   style="
+                       display: inline-block;
+                       padding: 14px 24px;
+                       background: #7c3cff;
+                       color: white;
+                       text-decoration: none;
+                       border-radius: 10px;
+                       font-weight: bold;
+                   ">
+                    VERIFY EMAIL
+                </a>
 
-                    <p>
-                        Verify your email address
-                        to confirm your registration.
-                    </p>
-
-                    <p style="margin: 30px 0;">
-
-                        <a
-                            href="{verification_url}"
-                            style="
-                                display: inline-block;
-                                padding: 14px 24px;
-                                background: #9b5cff;
-                                color: #ffffff;
-                                text-decoration: none;
-                                border-radius: 10px;
-                                font-weight: bold;
-                            "
-                        >
-                            VERIFY EMAIL
-                        </a>
-
-                    </p>
-
-                    <p style="
-                        font-size: 13px;
-                        color: #aaaaaa;
-                    ">
-                        If you did not register
-                        for ORQELETH AI,
-                        you can ignore this email.
-                    </p>
-
-                </div>
+                <p style="margin-top: 25px; color: #999;">
+                    If you did not register for ORQELETH AI, you can ignore
+                    this email.
+                </p>
+            </div>
             """
         })
-
 
         print(
             "EMAIL SENT:",
             email_response
         )
 
-
     except Exception as error:
-
         print(
             "EMAIL ERROR:",
             repr(error)
         )
 
+        # Remove failed registration so the user can try again.
+        try:
+            conn.execute(
+                "DELETE FROM queue WHERE email = ?",
+                (email,)
+            )
+            conn.commit()
+        except Exception:
+            pass
+
+        return jsonify({
+            "success": False,
+            "message": "We could not send the verification email. Please try again."
+        }), 500
         # Remove failed registration so the user
         # can try the same email again.
 
