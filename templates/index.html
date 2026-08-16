@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -13,539 +11,1435 @@
 
     <title>ORQELETH AI — Join the Queue</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background:
+                radial-gradient(
+                    circle at 50% -15%,
+                    rgba(116, 60, 255, 0.24),
+                    transparent 38%
+                ),
+                #08070f;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* =========================================================
+           BACKGROUND
+        ========================================================= */
+
+        .page-background {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -5;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: .28;
+        }
+
+        .orb.one {
+            width: 420px;
+            height: 420px;
+            background: #6028ff;
+            top: -220px;
+            left: 35%;
+        }
+
+        .orb.two {
+            width: 350px;
+            height: 350px;
+            background: #2424ff;
+            top: 45%;
+            left: -220px;
+            opacity: .14;
+        }
+
+        .orb.three {
+            width: 400px;
+            height: 400px;
+            background: #9d3cff;
+            top: 65%;
+            right: -250px;
+            opacity: .13;
+        }
+
+        .grid-background {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                );
+            background-size: 70px 70px;
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 80%
+            );
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 98px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7vw;
+
+            background: rgba(8, 7, 15, .78);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+
+            border-bottom: 1px solid rgba(255,255,255,.07);
+
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            white-space: nowrap;
+        }
+
+        .brand img {
+            width: 54px;
+            height: 54px;
+
+            object-fit: contain;
+
+            border-radius: 14px;
+
+            filter:
+                drop-shadow(0 0 10px rgba(0,140,255,.45));
+        }
+
+        .brand span {
+            color: #a875ff;
+            margin-left: 4px;
+        }
+
+        .leaderboard-btn {
+            padding: 15px 25px;
+
+            color: #fff;
+            background: rgba(255,255,255,.035);
+
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 999px;
+
+            font-size: 15px;
+            font-weight: 600;
+
+            transition:
+                transform .25s ease,
+                background .25s ease,
+                border-color .25s ease,
+                box-shadow .25s ease;
+        }
+
+        .leaderboard-btn:hover {
+            transform: translateY(-2px);
+
+            background: rgba(151,92,255,.12);
+            border-color: rgba(170,120,255,.4);
+
+            box-shadow:
+                0 0 30px rgba(126,75,255,.16);
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .hero {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            position: relative;
+
+            padding:
+                170px 24px
+                100px;
+        }
+
+        .hero-glow {
+            position: absolute;
+
+            width: 700px;
+            height: 420px;
+
+            top: 100px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            background:
+                radial-gradient(
+                    ellipse,
+                    rgba(123,67,255,.23),
+                    transparent 68%
+                );
+
+            pointer-events: none;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 1180px;
+
+            text-align: center;
+
+            position: relative;
+            z-index: 2;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 11px 18px;
+
+            border: 1px solid rgba(118,255,192,.2);
+            background: rgba(76,255,166,.055);
+
+            border-radius: 999px;
+
+            color: #8dffc2;
+
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+
+            box-shadow:
+                0 0 35px rgba(74,255,166,.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #54fca8;
+
+            box-shadow:
+                0 0 12px #54fca8;
+
+            animation: statusPulse 1.8s infinite;
+        }
+
+        @keyframes statusPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .45;
+                transform: scale(.72);
+            }
+        }
+
+        .hero h1 {
+            margin-top: 48px;
+
+            font-size:
+                clamp(58px, 9vw, 145px);
+
+            line-height: .88;
+
+            font-weight: 900;
+
+            letter-spacing: -7px;
+
+            text-transform: uppercase;
+        }
+
+        .hero h1 span {
+            display: block;
+
+            margin-top: 18px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #d8b5ff,
+                    #9f62ff,
+                    #7541ff,
+                    #c394ff
+                );
+
+            background-size: 200% auto;
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+
+            animation: gradientMove 6s linear infinite;
+        }
+
+        @keyframes gradientMove {
+
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+
+        }
+
+        .hero-description {
+            max-width: 680px;
+
+            margin: 38px auto 0;
+
+            color: #aaa7b7;
+
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           REWARD CARD
+        ========================================================= */
+
+        .reward-card {
+            width: min(620px, 100%);
+
+            margin: 38px auto 0;
+
+            display: flex;
+            align-items: center;
+
+            gap: 18px;
+
+            padding: 20px 24px;
+
+            text-align: left;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(151,94,255,.12),
+                    rgba(255,255,255,.025)
+                );
+
+            border:
+                1px solid rgba(173,132,255,.18);
+
+            border-radius: 20px;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.05),
+                0 20px 60px rgba(0,0,0,.2);
+        }
+
+        .reward-icon {
+            width: 52px;
+            height: 52px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 15px;
+
+            background: rgba(154,93,255,.13);
+
+            font-size: 25px;
+
+            box-shadow:
+                0 0 30px rgba(135,75,255,.15);
+        }
+
+        .reward-card strong {
+            font-size: 14px;
+            letter-spacing: 1.4px;
+        }
+
+        .reward-card p {
+            margin-top: 6px;
+
+            color: #9894a5;
+
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           QUEUE COUNTER
+        ========================================================= */
+
+        .queue-counter {
+            max-width: 760px;
+
+            margin: 48px auto 0;
+        }
+
+        .counter-number {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+
+            gap: 10px;
+        }
+
+        #queueCount {
+            font-size: clamp(48px, 7vw, 88px);
+
+            font-weight: 900;
+
+            letter-spacing: -4px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #cdb1ff
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .counter-total {
+            color: #777382;
+
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .progress-track {
+            height: 8px;
+
+            margin-top: 18px;
+
+            overflow: hidden;
+
+            border-radius: 999px;
+
+            background: rgba(255,255,255,.07);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #7040ff,
+                    #b46cff
+                );
+
+            box-shadow:
+                0 0 20px rgba(145,79,255,.55);
+
+            transition: width 1s ease;
+        }
+
+        .queue-counter > p {
+            margin-top: 13px;
+
+            color: #777382;
+
+            font-size: 12px;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            gap: 14px;
+
+            margin-top: 35px;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            min-height: 56px;
+
+            padding: 0 27px;
+
+            border-radius: 14px;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            letter-spacing: .5px;
+
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease,
+                border-color .25s ease;
+        }
+
+        .primary-btn {
+            color: white;
+
+            border: 1px solid rgba(184,145,255,.6);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7640ff,
+                    #a05eff
+                );
+
+            box-shadow:
+                0 12px 40px rgba(111,53,255,.25);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 18px 55px rgba(111,53,255,.42);
+        }
+
+        .primary-btn span {
+            margin-left: 12px;
+            font-size: 18px;
+        }
+
+        .secondary-btn {
+            color: #ddd9e7;
+
+            background: rgba(255,255,255,.035);
+
+            border: 1px solid rgba(255,255,255,.12);
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-3px);
+
+            border-color: rgba(190,150,255,.35);
+
+            box-shadow:
+                0 15px 45px rgba(0,0,0,.25);
+        }
+
+        /* =========================================================
+           GENERAL SECTIONS
+        ========================================================= */
+
+        main > section:not(.hero) {
+            width: min(1180px, calc(100% - 40px));
+
+            margin: 0 auto;
+
+            padding: 125px 0;
+        }
+
+        .section-heading {
+            text-align: center;
+
+            margin-bottom: 55px;
+        }
+
+        .section-heading > span {
+            color: #a875ff;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2.5px;
+        }
+
+        .section-heading h2 {
+            margin-top: 14px;
+
+            font-size: clamp(38px, 5vw, 62px);
+
+            letter-spacing: -3px;
+
+            font-weight: 850;
+        }
+
+        .section-heading p {
+            max-width: 600px;
+
+            margin: 17px auto 0;
+
+            color: #8f8b9b;
+
+            line-height: 1.6;
+        }
+
+        /* =========================================================
+           REWARDS
+        ========================================================= */
+
+        .reward-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+        }
+
+        .tier-card {
+            position: relative;
+
+            padding: 28px 24px;
+
+            min-height: 240px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.055),
+                    rgba(255,255,255,.015)
+                );
+
+            border: 1px solid rgba(255,255,255,.09);
+
+            overflow: hidden;
+
+            transition:
+                transform .3s ease,
+                border-color .3s ease,
+                box-shadow .3s ease;
+        }
+
+        .tier-card::before {
+            content: "";
+
+            position: absolute;
+
+            inset: -50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(151,94,255,.14),
+                    transparent 45%
+                );
+
+            opacity: 0;
+
+            transition: opacity .3s ease;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-8px);
+
+            border-color: rgba(168,118,255,.35);
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,.25);
+        }
+
+        .tier-card:hover::before {
+            opacity: 1;
+        }
+
+        .tier-rank {
+            position: relative;
+
+            color: #a29dab;
+
+            font-size: 11px;
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+        }
+
+        .tier-icon {
+            position: relative;
+
+            margin: 20px 0;
+
+            font-size: 35px;
+        }
+
+        .tier-card h3 {
+            position: relative;
+
+            font-size: 26px;
+        }
+
+        .tier-card p {
+            position: relative;
+
+            margin-top: 8px;
+
+            color: #8e899b;
+
+            font-size: 13px;
+        }
+
+        .tier-card small {
+            position: relative;
+
+            display: inline-block;
+
+            margin-top: 17px;
+
+            color: #9f70ff;
+
+            font-weight: 900;
+
+            letter-spacing: 1px;
+        }
+
+        .tier-gold {
+            border-color: rgba(190,145,255,.28);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(147,85,255,.12),
+                    rgba(255,255,255,.025)
+                );
+        }
+
+        .founder-badge {
+            margin-top: 20px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 18px;
+
+            padding: 24px;
+
+            border-radius: 20px;
+
+            border: 1px solid rgba(255,255,255,.09);
+
+            background: rgba(255,255,255,.025);
+        }
+
+        .founder-badge > div:first-child {
+            font-size: 30px;
+        }
+
+        .founder-badge strong {
+            font-size: 13px;
+            letter-spacing: 1.4px;
+        }
+
+        .founder-badge p {
+            margin-top: 6px;
+
+            color: #8d8998;
+
+            font-size: 13px;
+        }
+
+        /* =========================================================
+           FEATURES
+        ========================================================= */
+
+        .feature-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+        }
+
+        .feature-card {
+            min-height: 210px;
+
+            padding: 30px;
+
+            border:
+                1px solid rgba(255,255,255,.08);
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.045),
+                    rgba(255,255,255,.015)
+                );
+
+            transition:
+                transform .3s ease,
+                border-color .3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+
+            border-color:
+                rgba(163,108,255,.35);
+        }
+
+        .feature-card > span {
+            color: #8f61ff;
+
+            font-size: 12px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+        }
+
+        .feature-card h3 {
+            margin-top: 28px;
+
+            font-size: 22px;
+        }
+
+        .feature-card p {
+            margin-top: 12px;
+
+            color: #898593;
+
+            font-size: 14px;
+
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           LEADERBOARD
+        ========================================================= */
+
+        .leaderboard-box {
+            overflow: hidden;
+
+            border:
+                1px solid rgba(255,255,255,.09);
+
+            border-radius: 24px;
+
+            background:
+                rgba(255,255,255,.025);
+        }
+
+        .leaderboard-header {
+            display: grid;
+
+            grid-template-columns:
+                100px 1fr 220px;
+
+            gap: 20px;
+
+            padding: 20px 25px;
+
+            color: #777382;
+
+            border-bottom:
+                1px solid rgba(255,255,255,.07);
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 1.5px;
+        }
+
+        #leaderboard {
+            min-height: 220px;
+        }
+
+        .empty-leaderboard {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 220px;
+
+            padding: 30px;
+
+            text-align: center;
+
+            color: #777382;
+
+            line-height: 1.8;
+
+            font-size: 14px;
+        }
+
+        /* =========================================================
+           FINAL CTA
+        ========================================================= */
+
+        .final-cta {
+            position: relative;
+
+            text-align: center;
+
+            overflow: hidden;
+        }
+
+        .final-glow {
+            position: absolute;
+
+            width: 700px;
+            height: 350px;
+
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            background:
+                radial-gradient(
+                    ellipse,
+                    rgba(130,66,255,.2),
+                    transparent 68%
+                );
+
+            pointer-events: none;
+        }
+
+        .final-cta > span {
+            position: relative;
+
+            color: #a875ff;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2.5px;
+        }
+
+        .final-cta h2 {
+            position: relative;
+
+            margin: 20px auto 38px;
+
+            font-size:
+                clamp(42px, 6vw, 78px);
+
+            line-height: .98;
+
+            letter-spacing: -4px;
+        }
+
+        .final-cta .primary-btn {
+            position: relative;
+        }
+
+        /* =========================================================
+           MODAL
+        ========================================================= */
+
+        .modal {
+            position: fixed;
+
+            inset: 0;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 5000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,.75);
+
+            backdrop-filter: blur(14px);
+        }
+
+        .modal-content {
+            position: relative;
+
+            width: min(480px, calc(100% - 30px));
+
+            padding: 38px;
+
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #15111f,
+                    #0c0a12
+                );
+
+            border:
+                1px solid rgba(255,255,255,.1);
+
+            box-shadow:
+                0 40px 120px rgba(0,0,0,.65);
+
+            animation:
+                modalIn .3s ease;
+        }
+
+        @keyframes modalIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+        }
+
+        .close-btn {
+            position: absolute;
+
+            top: 18px;
+            right: 18px;
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            color: #aaa5b5;
+
+            background: rgba(255,255,255,.04);
+
+            border: 1px solid rgba(255,255,255,.08);
+
+            font-size: 22px;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        .modal-logo {
+            display: inline-block;
+
+            margin-bottom: 22px;
+
+            color: #b27aff;
+
+            font-size: 12px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+        }
+
+        .modal-content h2 {
+            font-size: 35px;
+
+            letter-spacing: -1.5px;
+        }
+
+        .modal-content > p {
+            margin-top: 10px;
+
+            color: #898593;
+
+            font-size: 14px;
+        }
+
+        #joinForm {
+            margin-top: 28px;
+        }
+
+        #joinForm input {
+            width: 100%;
+
+            height: 55px;
+
+            margin-bottom: 12px;
+
+            padding: 0 17px;
+
+            color: #fff;
+
+            outline: none;
+
+            border-radius: 13px;
+
+            background: rgba(255,255,255,.045);
+
+            border:
+                1px solid rgba(255,255,255,.1);
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        #joinForm input::placeholder {
+            color: #777382;
+        }
+
+        #joinForm input:focus {
+            border-color:
+                rgba(163,105,255,.65);
+
+            box-shadow:
+                0 0 0 4px rgba(142,80,255,.08);
+        }
+
+        #joinForm .primary-btn {
+            width: 100%;
+
+            margin-top: 8px;
+        }
+
+        #formMessage {
+            margin-top: 17px;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .navbar {
+                height: 78px;
+                padding: 0 20px;
+            }
+
+            .brand {
+                font-size: 15px;
+                letter-spacing: 2.5px;
+                gap: 9px;
+            }
+
+            .brand img {
+                width: 42px;
+                height: 42px;
+            }
+
+            .leaderboard-btn {
+                padding: 11px 17px;
+                font-size: 12px;
+            }
+
+            .hero {
+                padding-top: 130px;
+            }
+
+            .hero h1 {
+                letter-spacing: -4px;
+            }
+
+            .reward-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .feature-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .leaderboard-header {
+                grid-template-columns:
+                    70px 1fr 140px;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .hero {
+                padding:
+                    120px 18px
+                    70px;
+            }
+
+            .hero h1 {
+                font-size: 53px;
+                letter-spacing: -3px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .reward-card {
+                padding: 17px;
+            }
+
+            main > section:not(.hero) {
+                padding: 85px 0;
+            }
+
+            .reward-grid,
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-header {
+                grid-template-columns:
+                    55px 1fr 110px;
+
+                gap: 10px;
+
+                padding: 17px 15px;
+
+                font-size: 8px;
+            }
+
+            .modal-content {
+                padding: 28px 20px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
 </head>
-
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+<!-- =========================================================
+     BACKGROUND
+========================================================= -->
 
-    <header class="navbar">
-
-        <div class="brand">
-            ORQELETH<span>AI</span>
-        </div>
-
-        <button class="leaderboard-btn"
-                onclick="scrollToLeaderboard()">
-
-            Leaderboard
-
-        </button>
-
-    </header>
+<div class="page-background">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+    <div class="grid-background"></div>
+</div>
 
 
-    <!-- ================= HERO ================= -->
+<!-- =========================================================
+     HEADER
+========================================================= -->
 
-    <main>
+<header class="navbar">
 
-        <section class="hero">
+    <div class="brand">
 
-            <div class="hero-glow"></div>
+        <img
+            src="{{ url_for('static', filename='images/logo.png.jpeg') }}"
+            alt="Orqeleth AI Logo"
+        >
 
-            <div class="hero-content">
+        ORQELETH<span>AI</span>
 
-                <div class="status-pill">
+    </div>
 
-                    <span class="status-dot"></span>
+    <button
+        class="leaderboard-btn"
+        onclick="scrollToLeaderboard()"
+    >
+        Leaderboard
+    </button>
 
-                    EARLY ACCESS IS OPEN
-
-                </div>
-
-
-                <h1>
-
-                    100,000 PEOPLE.
-                    <span>100 FOUNDERS.</span>
-
-                </h1>
-
-
-                <p class="hero-description">
-
-                    Join the ORQELETH AI early-access queue.
-                    Climb the leaderboard and become one of
-                    the Founding 100.
-
-                </p>
+</header>
 
 
-                <!-- REWARD -->
+<!-- =========================================================
+     MAIN
+========================================================= -->
 
-                <div class="reward-card">
-
-                    <div class="reward-icon">
-                        🏆
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            FOUNDING 100
-                        </strong>
-
-                        <p>
-                            Exclusive Enterprise rewards
-                            + Founding 100 badge
-                        </p>
-
-                    </div>
-
-                </div>
+<main>
 
 
-                <!-- QUEUE COUNTER -->
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
 
-                <div class="queue-counter">
+    <section class="hero">
 
-                    <div class="counter-number">
+        <div class="hero-glow"></div>
 
-                        <span id="queueCount">
-                            0
-                        </span>
+        <div class="hero-content">
 
-                        <span class="counter-total">
-                            / 100,000
-                        </span>
+            <div class="status-pill">
 
-                    </div>
+                <span class="status-dot"></span>
 
-
-                    <div class="progress-track">
-
-                        <div class="progress-bar"
-                             id="progressBar">
-                        </div>
-
-                    </div>
-
-
-                    <p>
-                        Verified people currently in the queue
-                    </p>
-
-                </div>
-
-
-                <!-- BUTTONS -->
-
-                <div class="hero-actions">
-
-                    <button class="primary-btn"
-                            onclick="openJoinModal()">
-
-                        JOIN THE QUEUE
-
-                        <span>→</span>
-
-                    </button>
-
-
-                    <button class="secondary-btn"
-                            onclick="scrollToLeaderboard()">
-
-                        VIEW LEADERBOARD
-
-                    </button>
-
-                </div>
+                EARLY ACCESS IS OPEN
 
             </div>
 
-        </section>
 
+            <h1>
 
-        <!-- ================= REWARDS ================= -->
-
-        <section class="rewards-section">
-
-            <div class="section-heading">
+                100,000 PEOPLE.
 
                 <span>
-                    THE RACE
+                    100 FOUNDERS.
                 </span>
 
-                <h2>
-                    Earn your place.
-                </h2>
-
-                <p>
-                    The higher you finish, the greater your
-                    Enterprise access.
-                </p>
-
-            </div>
+            </h1>
 
 
-            <div class="reward-grid">
+            <p class="hero-description">
+
+                Join the ORQELETH AI early-access queue.
+                Climb the leaderboard and become one of
+                the Founding 100.
+
+            </p>
 
 
-                <div class="tier-card tier-gold">
+            <!-- REWARD -->
 
-                    <div class="tier-rank">
-                        #1–25
-                    </div>
+            <div class="reward-card">
 
-                    <div class="tier-icon">
-                        👑
-                    </div>
-
-                    <h3>
-                        1 Year
-                    </h3>
-
-                    <p>
-                        Orqeleth Enterprise
-                    </p>
-
-                    <small>
-                        FREE
-                    </small>
-
+                <div class="reward-icon">
+                    🏆
                 </div>
-
-
-                <div class="tier-card">
-
-                    <div class="tier-rank">
-                        #26–50
-                    </div>
-
-                    <div class="tier-icon">
-                        ⚡
-                    </div>
-
-                    <h3>
-                        6 Months
-                    </h3>
-
-                    <p>
-                        Orqeleth Enterprise
-                    </p>
-
-                    <small>
-                        FREE
-                    </small>
-
-                </div>
-
-
-                <div class="tier-card">
-
-                    <div class="tier-rank">
-                        #51–75
-                    </div>
-
-                    <div class="tier-icon">
-                        🚀
-                    </div>
-
-                    <h3>
-                        3 Months
-                    </h3>
-
-                    <p>
-                        Orqeleth Enterprise
-                    </p>
-
-                    <small>
-                        FREE
-                    </small>
-
-                </div>
-
-
-                <div class="tier-card">
-
-                    <div class="tier-rank">
-                        #76–100
-                    </div>
-
-                    <div class="tier-icon">
-                        ⭐
-                    </div>
-
-                    <h3>
-                        1 Month
-                    </h3>
-
-                    <p>
-                        Orqeleth Enterprise
-                    </p>
-
-                    <small>
-                        FREE
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <div class="founder-badge">
-
-                🏆
 
                 <div>
 
                     <strong>
-                        ALL FOUNDING 100
+                        FOUNDING 100
                     </strong>
 
                     <p>
-                        Receive the permanent Founding 100 badge
-                        and priority early access.
+                        Exclusive Enterprise rewards
+                        + permanent Founding 100 badge
                     </p>
 
                 </div>
 
             </div>
 
-        </section>
+
+            <!-- QUEUE -->
+
+            <div class="queue-counter">
+
+                <div class="counter-number">
+
+                    <span id="queueCount">
+                        0
+                    </span>
+
+                    <span class="counter-total">
+                        / 100,000
+                    </span>
+
+                </div>
 
 
-        <!-- ================= PRODUCT ================= -->
+                <div class="progress-track">
 
-        <section class="product-section">
+                    <div
+                        class="progress-bar"
+                        id="progressBar"
+                    ></div>
 
-            <div class="section-heading">
+                </div>
 
-                <span>
-                    WHY ORQELETH
-                </span>
-
-                <h2>
-                    More than a chatbot.
-                </h2>
 
                 <p>
-                    Orqeleth is designed to help you accomplish
-                    real work.
+                    Verified people currently in the queue
                 </p>
 
             </div>
 
 
-            <div class="feature-grid">
+            <!-- ACTIONS -->
 
-
-                <div class="feature-card">
-                    <span>01</span>
-                    <h3>AI Workers</h3>
-                    <p>
-                        AI designed to work toward real goals.
-                    </p>
-                </div>
-
-
-                <div class="feature-card">
-                    <span>02</span>
-                    <h3>Goal Execution</h3>
-                    <p>
-                        Turn objectives into actionable steps.
-                    </p>
-                </div>
-
-
-                <div class="feature-card">
-                    <span>03</span>
-                    <h3>Long-Term Memory</h3>
-                    <p>
-                        Remember useful context with user control.
-                    </p>
-                </div>
-
-
-                <div class="feature-card">
-                    <span>04</span>
-                    <h3>Vision</h3>
-                    <p>
-                        Understand images, screens and files.
-                    </p>
-                </div>
-
-
-                <div class="feature-card">
-                    <span>05</span>
-                    <h3>Web Research</h3>
-                    <p>
-                        Research information and provide sources.
-                    </p>
-                </div>
-
-
-                <div class="feature-card">
-                    <span>06</span>
-                    <h3>Connected Workflows</h3>
-                    <p>
-                        Designed to connect work across tools.
-                    </p>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= LEADERBOARD ================= -->
-
-        <section class="leaderboard-section"
-                 id="leaderboard">
-
-            <div class="section-heading">
-
-                <span>
-                    COMPETE
-                </span>
-
-                <h2>
-                    🏆 Founding 100
-                </h2>
-
-                <p>
-                    Earn legitimate verified referrals.
-                    Climb the rankings.
-                </p>
-
-            </div>
-
-
-            <div class="leaderboard-box">
-
-                <div class="leaderboard-header">
-
-                    <span>
-                        RANK
-                    </span>
-
-                    <span>
-                        MEMBER
-                    </span>
-
-                    <span>
-                        VERIFIED REFERRALS
-                    </span>
-
-                </div>
-
-
-                <div id="leaderboard">
-
-                    <div class="empty-leaderboard">
-
-                        The race is live.
-
-                        <br>
-
-                        The leaderboard will populate
-                        as verified members join.
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= FINAL CTA ================= -->
-
-        <section class="final-cta">
-
-            <div class="final-glow"></div>
-
-            <span>
-                THE RACE IS LIVE
-            </span>
-
-            <h2>
-                Will you be<br>
-                one of the Founding 100?
-            </h2>
-
-            <button class="primary-btn"
-                    onclick="openJoinModal()">
-
-                JOIN THE QUEUE
-
-                <span>→</span>
-
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= JOIN MODAL ================= -->
-
-    <div class="modal"
-         id="joinModal">
-
-        <div class="modal-overlay"
-             onclick="closeJoinModal()">
-        </div>
-
-
-        <div class="modal-content">
-
-            <button class="close-btn"
-                    onclick="closeJoinModal()">
-
-                ×
-
-            </button>
-
-
-            <div class="modal-logo">
-                ORQELETH AI
-            </div>
-
-
-            <h2>
-                Join the queue.
-            </h2>
-
-
-            <p>
-                Enter the race for the Founding 100.
-            </p>
-
-
-            <form id="joinForm">
-
-                <input
-                    type="text"
-                    id="name"
-                    placeholder="Your name"
-                    required
-                >
-
-
-                <input
-                    type="email"
-                    id="email"
-                    placeholder="Your email"
-                    required
-                >
-
-
-                <input
-                    type="text"
-                    id="username"
-                    placeholder="Username (optional)"
-                >
-
+            <div class="hero-actions">
 
                 <button
-                    type="submit"
-                    class="primary-btn">
+                    class="primary-btn"
+                    onclick="openJoinModal()"
+                >
 
                     JOIN THE QUEUE
 
@@ -553,19 +1447,597 @@
 
                 </button>
 
-            </form>
 
+                <button
+                    class="secondary-btn"
+                    onclick="scrollToLeaderboard()"
+                >
 
-            <div id="formMessage"></div>
+                    VIEW LEADERBOARD
+
+                </button>
+
+            </div>
 
         </div>
 
+    </section>
+
+
+    <!-- =====================================================
+         REWARDS
+    ====================================================== -->
+
+    <section class="rewards-section">
+
+        <div class="section-heading">
+
+            <span>
+                THE RACE
+            </span>
+
+            <h2>
+                Earn your place.
+            </h2>
+
+            <p>
+                The higher you finish,
+                the greater your Enterprise access.
+            </p>
+
+        </div>
+
+
+        <div class="reward-grid">
+
+
+            <div class="tier-card tier-gold">
+
+                <div class="tier-rank">
+                    #1–25
+                </div>
+
+                <div class="tier-icon">
+                    👑
+                </div>
+
+                <h3>
+                    1 Year
+                </h3>
+
+                <p>
+                    Orqeleth Enterprise
+                </p>
+
+                <small>
+                    FREE
+                </small>
+
+            </div>
+
+
+            <div class="tier-card">
+
+                <div class="tier-rank">
+                    #26–50
+                </div>
+
+                <div class="tier-icon">
+                    ⚡
+                </div>
+
+                <h3>
+                    6 Months
+                </h3>
+
+                <p>
+                    Orqeleth Enterprise
+                </p>
+
+                <small>
+                    FREE
+                </small>
+
+            </div>
+
+
+            <div class="tier-card">
+
+                <div class="tier-rank">
+                    #51–75
+                </div>
+
+                <div class="tier-icon">
+                    🚀
+                </div>
+
+                <h3>
+                    3 Months
+                </h3>
+
+                <p>
+                    Orqeleth Enterprise
+                </p>
+
+                <small>
+                    FREE
+                </small>
+
+            </div>
+
+
+            <div class="tier-card">
+
+                <div class="tier-rank">
+                    #76–100
+                </div>
+
+                <div class="tier-icon">
+                    ⭐
+                </div>
+
+                <h3>
+                    1 Month
+                </h3>
+
+                <p>
+                    Orqeleth Enterprise
+                </p>
+
+                <small>
+                    FREE
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="founder-badge">
+
+            <div>
+                🏆
+            </div>
+
+            <div>
+
+                <strong>
+                    ALL FOUNDING 100
+                </strong>
+
+                <p>
+                    Receive the permanent Founding 100 badge
+                    and priority early access.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WHY ORQELETH
+    ====================================================== -->
+
+    <section class="product-section">
+
+        <div class="section-heading">
+
+            <span>
+                WHY ORQELETH
+            </span>
+
+            <h2>
+                More than a chatbot.
+            </h2>
+
+            <p>
+                Orqeleth is designed to help you accomplish
+                real work.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+
+            <div class="feature-card">
+
+                <span>
+                    01
+                </span>
+
+                <h3>
+                    AI Workers
+                </h3>
+
+                <p>
+                    AI designed to work toward
+                    real goals.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <span>
+                    02
+                </span>
+
+                <h3>
+                    Goal Execution
+                </h3>
+
+                <p>
+                    Turn objectives into
+                    actionable steps.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <span>
+                    03
+                </span>
+
+                <h3>
+                    Long-Term Memory
+                </h3>
+
+                <p>
+                    Remember useful context
+                    with user control.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <span>
+                    04
+                </span>
+
+                <h3>
+                    Vision
+                </h3>
+
+                <p>
+                    Understand images,
+                    screens and files.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <span>
+                    05
+                </span>
+
+                <h3>
+                    Web Research
+                </h3>
+
+                <p>
+                    Research information
+                    and provide sources.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <span>
+                    06
+                </span>
+
+                <h3>
+                    Connected Workflows
+                </h3>
+
+                <p>
+                    Designed to connect
+                    work across tools.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LEADERBOARD
+    ====================================================== -->
+
+    <section
+        class="leaderboard-section"
+        id="leaderboard"
+    >
+
+        <div class="section-heading">
+
+            <span>
+                COMPETE
+            </span>
+
+            <h2>
+                🏆 Founding 100
+            </h2>
+
+            <p>
+                Earn legitimate verified referrals.
+                Climb the rankings.
+            </p>
+
+        </div>
+
+
+        <div class="leaderboard-box">
+
+            <div class="leaderboard-header">
+
+                <span>
+                    RANK
+                </span>
+
+                <span>
+                    MEMBER
+                </span>
+
+                <span>
+                    VERIFIED REFERRALS
+                </span>
+
+            </div>
+
+
+            <div id="leaderboard">
+
+                <div class="empty-leaderboard">
+
+                    The race is live.
+                    <br>
+
+                    The leaderboard will populate
+                    as verified members join.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FINAL CTA
+    ====================================================== -->
+
+    <section class="final-cta">
+
+        <div class="final-glow"></div>
+
+        <span>
+            THE RACE IS LIVE
+        </span>
+
+        <h2>
+
+            Will you be<br>
+            one of the Founding 100?
+
+        </h2>
+
+
+        <button
+            class="primary-btn"
+            onclick="openJoinModal()"
+        >
+
+            JOIN THE QUEUE
+
+            <span>
+                →
+            </span>
+
+        </button>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================================
+     JOIN MODAL
+========================================================= -->
+
+<div
+    class="modal"
+    id="joinModal"
+>
+
+    <div
+        class="modal-overlay"
+        onclick="closeJoinModal()"
+    ></div>
+
+
+    <div class="modal-content">
+
+
+        <button
+            class="close-btn"
+            onclick="closeJoinModal()"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-logo">
+            ORQELETH AI
+        </div>
+
+
+        <h2>
+            Join the queue.
+        </h2>
+
+
+        <p>
+            Enter the race for the Founding 100.
+        </p>
+
+
+        <form id="joinForm">
+
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Your name"
+                autocomplete="name"
+                required
+            >
+
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Your email"
+                autocomplete="email"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Username (optional)"
+                autocomplete="username"
+            >
+
+
+            <button
+                type="submit"
+                class="primary-btn"
+            >
+
+                JOIN THE QUEUE
+
+                <span>
+                    →
+                </span>
+
+            </button>
+
+
+        </form>
+
+
+        <div id="formMessage"></div>
+
     </div>
 
+</div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}">
-    </script>
+
+<!-- =========================================================
+     EXISTING QUEUE JAVASCRIPT
+========================================================= -->
+
+<script
+    src="{{ url_for('static', filename='js/script.js') }}"
+></script>
+
+
+<!-- =========================================================
+     SMALL SAFETY FALLBACKS
+========================================================= -->
+
+<script>
+
+    function scrollToLeaderboard() {
+
+        const section =
+            document.getElementById("leaderboard");
+
+        if (section) {
+
+            section.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+    }
+
+
+    function openJoinModal() {
+
+        const modal =
+            document.getElementById("joinModal");
+
+        if (!modal) return;
+
+        modal.classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+        setTimeout(() => {
+
+            const nameInput =
+                document.getElementById("name");
+
+            if (nameInput) {
+                nameInput.focus();
+            }
+
+        }, 150);
+
+    }
+
+
+    function closeJoinModal() {
+
+        const modal =
+            document.getElementById("joinModal");
+
+        if (!modal) return;
+
+        modal.classList.remove("active");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Escape") {
+                closeJoinModal();
+            }
+
+        }
+    );
+
+</script>
 
 </body>
-
 </html>
