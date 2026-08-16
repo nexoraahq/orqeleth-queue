@@ -2,486 +2,616 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+    <title>ORQELETH AI — Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
     >
-
-    <title>Your Queue — ORQELETH AI</title>
 
     <style>
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             min-height: 100vh;
+            font-family: "Inter", Arial, sans-serif;
+            color: #ffffff;
+            background: #090711;
+            overflow-x: hidden;
+        }
 
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* BACKGROUND */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
             background:
                 radial-gradient(
-                    circle at 50% -10%,
-                    rgba(140, 80, 255, 0.18),
+                    circle at 50% 0%,
+                    rgba(126, 70, 255, 0.28),
                     transparent 38%
                 ),
-                #050507;
-
-            color: #ffffff;
-
-            padding-bottom: 80px;
+                radial-gradient(
+                    circle at 100% 70%,
+                    rgba(95, 35, 190, 0.16),
+                    transparent 35%
+                ),
+                #090711;
         }
 
-        .container {
-            width: min(1100px, 92%);
-            margin: auto;
+        .grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.035;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.7) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.7) 1px,
+                    transparent 1px
+                );
+            background-size: 55px 55px;
+            pointer-events: none;
         }
 
-        /* NAV */
+        /* NAVBAR */
 
-        .nav {
-            height: 75px;
-
+        .navbar {
+            height: 82px;
+            width: 100%;
+            padding: 0 6%;
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            border-bottom: 1px solid
-                rgba(255,255,255,0.07);
+            background: rgba(7, 5, 14, 0.78);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 15px;
-            font-weight: 800;
-            letter-spacing: 3px;
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 4px;
         }
 
-        .logo span {
-            color: #b875ff;
+        .logo-ai {
+            color: #a86cff;
+            margin-left: 6px;
         }
 
-        .live {
-            display: flex;
-            align-items: center;
-            gap: 7px;
+        .leaderboard-link {
+            padding: 12px 22px;
 
-            color: #9c9ca7;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
 
-            font-size: 11px;
-            letter-spacing: 1px;
+            background: rgba(255,255,255,0.04);
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition: 0.25s ease;
         }
 
-        .dot {
-            width: 7px;
-            height: 7px;
+        .leaderboard-link:hover {
+            border-color: rgba(170,105,255,0.45);
+            background: rgba(140,75,255,0.12);
+            transform: translateY(-2px);
+        }
 
-            border-radius: 50%;
+        /* MAIN */
 
-            background: #72f5b1;
-
-            box-shadow:
-                0 0 12px #72f5b1;
+        .main {
+            width: min(1100px, 92%);
+            margin: 0 auto;
+            padding: 65px 0 100px;
         }
 
         /* HERO */
 
         .hero {
             text-align: center;
+            margin-bottom: 45px;
+        }
 
-            padding: 70px 0 45px;
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 9px 16px;
+
+            border: 1px solid rgba(165,105,255,0.35);
+            border-radius: 999px;
+
+            background: rgba(130,65,255,0.08);
+
+            color: #b98aff;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #65f2a2;
+            box-shadow: 0 0 12px rgba(101,242,162,0.8);
+        }
+
+        .hero h1 {
+            margin-top: 22px;
+
+            font-size: clamp(40px, 7vw, 76px);
+            line-height: 1;
+            letter-spacing: -4px;
+            font-weight: 900;
+        }
+
+        .hero h1 span {
+            color: #aa70ff;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 20px auto 0;
+
+            color: #9992a7;
+
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns: 1.35fr 0.85fr;
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            overflow: hidden;
+
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 24px;
+
+            background: rgba(255,255,255,0.035);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.25);
+        }
+
+        .card-inner {
+            padding: 30px;
+        }
+
+        .label {
+            color: #817a8f;
+
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* RANK */
+
+        .rank-card {
+            min-height: 310px;
+        }
+
+        .rank-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .rank-number {
+            margin-top: 12px;
+
+            font-size: clamp(60px, 8vw, 90px);
+            line-height: 0.95;
+
+            font-weight: 900;
+            letter-spacing: -5px;
+
+            background: linear-gradient(
+                135deg,
+                #ffffff,
+                #ad73ff
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .rank-caption {
+            margin-top: 9px;
+            color: #777180;
+            font-size: 13px;
+        }
+
+        .trophy {
+            width: 60px;
+            height: 60px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background: rgba(143,77,255,0.12);
+            border: 1px solid rgba(170,105,255,0.2);
+
+            font-size: 28px;
+        }
+
+        .rank-description {
+            margin-top: 30px;
+
+            color: #aaa3b3;
+
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* PROFILE */
+
+        .profile-card {
+            min-height: 310px;
+        }
+
+        .avatar {
+            width: 68px;
+            height: 68px;
+
+            margin-top: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: linear-gradient(
+                135deg,
+                #793cff,
+                #bd91ff
+            );
+
+            font-size: 25px;
+            font-weight: 900;
+
+            box-shadow:
+                0 0 35px rgba(126,60,255,0.3);
+        }
+
+        .profile-name {
+            margin-top: 17px;
+
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .profile-email {
+            margin-top: 7px;
+
+            color: #777180;
+
+            font-size: 12px;
+            word-break: break-word;
         }
 
         .verified {
             display: inline-flex;
+            align-items: center;
+            gap: 6px;
 
-            padding: 8px 14px;
+            margin-top: 18px;
+            padding: 8px 12px;
 
             border-radius: 999px;
 
-            background:
-                rgba(114,245,177,0.06);
+            background: rgba(73,225,145,0.07);
+            border: 1px solid rgba(73,225,145,0.16);
 
-            border: 1px solid
-                rgba(114,245,177,0.18);
-
-            color: #9df5c4;
-
-            font-size: 11px;
-            font-weight: 700;
-
-            letter-spacing: 1.5px;
-        }
-
-        .hero h1 {
-            margin-top: 25px;
-
-            font-size:
-                clamp(42px, 7vw, 76px);
-
-            line-height: 0.98;
-
-            letter-spacing: -4px;
-        }
-
-        .gradient {
-            background:
-                linear-gradient(
-                    100deg,
-                    #ffffff,
-                    #b875ff
-                );
-
-            -webkit-background-clip: text;
-            background-clip: text;
-
-            color: transparent;
-        }
-
-        .hero p {
-            max-width: 600px;
-
-            margin: 20px auto 0;
-
-            color: #9696a2;
-
-            line-height: 1.7;
-        }
-
-        /* STATS */
-
-        .stats {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 14px;
-
-            margin-top: 20px;
-        }
-
-        .stat {
-            padding: 28px 20px;
-
-            background:
-                rgba(255,255,255,0.035);
-
-            border: 1px solid
-                rgba(255,255,255,0.09);
-
-            border-radius: 20px;
-
-            text-align: center;
-        }
-
-        .stat-label {
-            color: #777783;
+            color: #68dc9c;
 
             font-size: 10px;
-            font-weight: 700;
-
-            letter-spacing: 1.5px;
-        }
-
-        .stat-number {
-            margin-top: 13px;
-
-            font-size: 42px;
-            font-weight: 800;
-
-            letter-spacing: -2px;
-        }
-
-        .stat-number.purple {
-            color: #c084ff;
-        }
-
-        /* CLIMB CARD */
-
-        .climb-card {
-            margin-top: 16px;
-
-            padding: 32px;
-
-            text-align: center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(145,80,255,0.13),
-                    rgba(255,255,255,0.035)
-                );
-
-            border: 1px solid
-                rgba(180,120,255,0.22);
-
-            border-radius: 24px;
-        }
-
-        .climb-card h2 {
-            font-size: 27px;
-
-            letter-spacing: -1px;
-        }
-
-        .climb-card p {
-            margin-top: 9px;
-
-            color: #9696a2;
-
-            font-size: 14px;
-        }
-
-        .target {
-            margin-top: 20px;
-
-            color: #c084ff;
-
-            font-size: 14px;
             font-weight: 800;
         }
 
         /* SHARE */
 
-        .share-section {
-            margin-top: 16px;
-
-            padding: 28px;
-
-            background:
-                rgba(255,255,255,0.025);
-
-            border: 1px solid
-                rgba(255,255,255,0.08);
-
-            border-radius: 22px;
+        .share-card {
+            grid-column: 1 / -1;
         }
 
-        .share-section h3 {
-            font-size: 17px;
+        .share-inner {
+            padding: 34px;
         }
 
-        .share-section > p {
-            margin-top: 7px;
-
-            color: #777783;
-
-            font-size: 13px;
-        }
-
-        .link-box {
-            margin-top: 20px;
-
+        .share-content {
             display: flex;
-            gap: 9px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
         }
 
-        .link-box input {
-            min-width: 0;
-            flex: 1;
+        .share-title {
+            margin-top: 9px;
 
-            height: 50px;
-
-            padding: 0 15px;
-
-            color: #bdbdc7;
-
-            background:
-                rgba(255,255,255,0.045);
-
-            border: 1px solid
-                rgba(255,255,255,0.09);
-
-            border-radius: 12px;
-
-            outline: none;
+            font-size: 29px;
+            font-weight: 850;
+            letter-spacing: -1px;
         }
 
-        .copy-btn {
-            height: 50px;
+        .share-description {
+            max-width: 620px;
 
-            padding: 0 20px;
-
-            border: 0;
-
-            border-radius: 12px;
-
-            background: #ffffff;
-
-            color: #08080b;
-
-            font-weight: 800;
-
-            cursor: pointer;
-        }
-
-        .share-buttons {
-            display: grid;
-
-            grid-template-columns:
-                repeat(5, 1fr);
-
-            gap: 9px;
-
-            margin-top: 12px;
-        }
-
-        .share-btn {
-            min-height: 48px;
-
-            border-radius: 12px;
-
-            border: 1px solid
-                rgba(255,255,255,0.08);
-
-            background:
-                rgba(255,255,255,0.035);
-
-            color: #ffffff;
-
-            cursor: pointer;
-
-            font-size: 12px;
-            font-weight: 700;
-
-            transition: 0.2s ease;
-        }
-
-        .share-btn:hover {
-            background:
-                rgba(255,255,255,0.09);
-
-            transform: translateY(-2px);
-        }
-
-        /* SHARE MESSAGE */
-
-        .message-card {
-            margin-top: 14px;
-
-            padding: 20px;
-
-            background:
-                rgba(255,255,255,0.025);
-
-            border: 1px solid
-                rgba(255,255,255,0.07);
-
-            border-radius: 16px;
-        }
-
-        .message-card small {
-            color: #777783;
-
-            font-size: 10px;
-            font-weight: 700;
-
-            letter-spacing: 1px;
-        }
-
-        .message-card p {
             margin-top: 10px;
 
-            color: #c8c8d0;
+            color: #87818f;
 
             font-size: 13px;
-
             line-height: 1.7;
         }
 
-        /* REWARD */
-
-        .reward {
-            margin-top: 16px;
-
-            padding: 26px;
-
-            border-radius: 20px;
-
-            background:
-                rgba(255,255,255,0.025);
-
-            border: 1px solid
-                rgba(255,255,255,0.08);
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .reward-label {
-            color: #b875ff;
+        .share-button {
+            min-width: 140px;
 
-            font-size: 10px;
+            padding: 14px 20px;
+
+            border-radius: 13px;
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            background: rgba(255,255,255,0.04);
+
+            color: #ffffff;
+
+            font-size: 12px;
             font-weight: 800;
 
-            letter-spacing: 1.5px;
+            transition: 0.25s ease;
         }
 
-        .reward h3 {
-            margin-top: 10px;
-
-            font-size: 23px;
+        .share-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(170,105,255,0.45);
+            background: rgba(140,75,255,0.12);
         }
 
-        .reward p {
+        .share-primary {
+            border: 0;
+
+            background: linear-gradient(
+                135deg,
+                #7636ff,
+                #aa6cff
+            );
+
+            box-shadow:
+                0 12px 30px rgba(118,54,255,0.25);
+        }
+
+        /* CLIMB */
+
+        .climb-card {
+            grid-column: 1 / -1;
+        }
+
+        .climb-inner {
+            padding: 34px;
+        }
+
+        .climb-title {
+            margin-top: 9px;
+
+            font-size: 29px;
+            font-weight: 850;
+        }
+
+        .climb-description {
             margin-top: 8px;
 
-            color: #858590;
-
+            color: #817b89;
             font-size: 13px;
+        }
 
-            line-height: 1.6;
+        .progress-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-top: 28px;
+        }
+
+        .progress-number {
+            color: #b98aff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 9px;
+
+            margin-top: 10px;
+
+            overflow: hidden;
+
+            border-radius: 999px;
+
+            background: rgba(255,255,255,0.07);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+
+            border-radius: inherit;
+
+            background: linear-gradient(
+                90deg,
+                #7435ff,
+                #c28cff
+            );
+
+            box-shadow:
+                0 0 18px rgba(145,75,255,0.6);
+        }
+
+        .climb-button-area {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .climb-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 14px 24px;
+
+            border: 1px solid rgba(170,105,255,0.25);
+            border-radius: 13px;
+
+            background: rgba(140,75,255,0.08);
+
+            color: #c7a5ff;
+
+            font-size: 12px;
+            font-weight: 800;
+
+            transition: 0.25s ease;
+        }
+
+        .climb-button:hover {
+            transform: translateY(-2px);
+            background: rgba(140,75,255,0.15);
         }
 
         /* MOBILE */
 
-        @media (max-width: 700px) {
+        @media (max-width: 800px) {
 
-            .hero {
-                padding-top: 55px;
+            .navbar {
+                height: 72px;
+                padding: 0 5%;
             }
 
-            .stats {
+            .logo {
+                font-size: 15px;
+                letter-spacing: 3px;
+            }
+
+            .leaderboard-link {
+                padding: 10px 15px;
+                font-size: 11px;
+            }
+
+            .main {
+                width: 92%;
+                padding-top: 45px;
+            }
+
+            .cards {
                 grid-template-columns: 1fr;
             }
 
-            .stat-number {
-                font-size: 38px;
-            }
-
+            .share-card,
             .climb-card {
-                padding: 26px 20px;
+                grid-column: auto;
             }
 
-            .share-section {
-                padding: 22px 16px;
-            }
-
-            .link-box {
+            .share-content {
                 flex-direction: column;
-            }
-
-            .copy-btn {
-                width: 100%;
+                align-items: flex-start;
             }
 
             .share-buttons {
-                grid-template-columns:
-                    repeat(2, 1fr);
+                width: 100%;
             }
 
-            .share-btn:last-child {
-                grid-column: 1 / -1;
+            .share-button {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .card-inner,
+            .share-inner,
+            .climb-inner {
+                padding: 23px;
             }
 
             .hero h1 {
-                letter-spacing: -2.5px;
+                letter-spacing: -2px;
+            }
+
+            .rank-number {
+                font-size: 65px;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-button {
+                width: 100%;
             }
         }
 
@@ -490,516 +620,416 @@
 
 <body>
 
-<div class="container">
+    <div class="background"></div>
+    <div class="grid"></div>
 
-    <!-- NAV -->
+    <!-- NAVBAR -->
 
-    <nav class="nav">
+    <header class="navbar">
 
-        <div class="logo">
-            ORQELETH <span>AI</span>
-        </div>
+        <a href="/" class="logo">
+            ORQELETH
+            <span class="logo-ai">AI</span>
+        </a>
 
-        <div class="live">
-            <div class="dot"></div>
-            RACE LIVE
-        </div>
+        <a href="/leaderboard" class="leaderboard-link">
+            Leaderboard
+        </a>
 
-    </nav>
-
-
-    <!-- HERO -->
-
-    <section class="hero">
-
-        <div class="verified">
-            ✓ YOU'RE IN THE RACE
-        </div>
-
-        <h1>
-            Welcome to the
-            <span class="gradient">
-                Founding Race.
-            </span>
-        </h1>
-
-        <p>
-            Your registration is verified.
-            Now climb the leaderboard by bringing
-            legitimate verified members into the queue.
-        </p>
-
-    </section>
+    </header>
 
 
-    <!-- STATS -->
+    <!-- MAIN -->
 
-    <section class="stats">
+    <main class="main">
 
-        <div class="stat">
+        <!-- HERO -->
 
-            <div class="stat-label">
-                YOUR POSITION
+        <section class="hero">
+
+            <div class="badge">
+                <span class="badge-dot"></span>
+                FOUNDING 100 ACCESS
             </div>
 
-            <div
-                class="stat-number"
-                id="queuePosition"
-            >
-                #—
-            </div>
+            <h1>
+                Welcome to the
+                <span>Founding 100.</span>
+            </h1>
 
-        </div>
-
-
-        <div class="stat">
-
-            <div class="stat-label">
-                VERIFIED REFERRALS
-            </div>
-
-            <div
-                class="stat-number purple"
-                id="referralCount"
-            >
-                0
-            </div>
-
-        </div>
-
-
-        <div class="stat">
-
-            <div class="stat-label">
-                LEADERBOARD RANK
-            </div>
-
-            <div
-                class="stat-number"
-                id="leaderboardRank"
-            >
-                #—
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- CLIMB -->
-
-    <section class="climb-card">
-
-        <h2>
-            🚀 Share & Climb
-        </h2>
-
-        <p>
-            Every legitimate verified referral
-            moves you closer to the Founding 100.
-        </p>
-
-        <div
-            class="target"
-            id="targetMessage"
-        >
-            Get your first verified referral
-            to start climbing.
-        </div>
-
-    </section>
-
-
-    <!-- SHARE -->
-
-    <section class="share-section">
-
-        <h3>
-            YOUR REFERRAL LINK
-        </h3>
-
-        <p>
-            Share this link with friends and
-            invite them to join the race.
-        </p>
-
-
-        <div class="link-box">
-
-            <input
-                id="referralLink"
-                type="text"
-                readonly
-                value="Loading..."
-            >
-
-            <button
-                class="copy-btn"
-                onclick="copyReferralLink()"
-            >
-                COPY LINK
-            </button>
-
-        </div>
-
-
-        <div class="share-buttons">
-
-            <button
-                class="share-btn"
-                onclick="shareWhatsApp()"
-            >
-                WhatsApp
-            </button>
-
-            <button
-                class="share-btn"
-                onclick="shareX()"
-            >
-                X
-            </button>
-
-            <button
-                class="share-btn"
-                onclick="shareTelegram()"
-            >
-                Telegram
-            </button>
-
-            <button
-                class="share-btn"
-                onclick="shareFacebook()"
-            >
-                Facebook
-            </button>
-
-            <button
-                class="share-btn"
-                onclick="nativeShare()"
-            >
-                More
-            </button>
-
-        </div>
-
-
-        <div class="message-card">
-
-            <small>
-                YOUR SHARE MESSAGE
-            </small>
-
-            <p id="shareMessage">
-                I'm racing to become one of
-                the ORQELETH Founding 100. 🏆
-
-                Top 100 get special Enterprise
-                access.
-
-                Join the queue:
+            <p>
+                Your ORQELETH AI journey has started.
+                Share your position, climb the leaderboard,
+                and secure your place among the earliest users.
             </p>
 
-        </div>
-
-    </section>
+        </section>
 
 
-    <!-- REWARD -->
+        <!-- DASHBOARD CARDS -->
 
-    <section class="reward">
+        <section class="cards">
 
-        <div class="reward-label">
-            YOUR CURRENT REWARD TIER
-        </div>
+            <!-- RANK CARD -->
 
-        <h3 id="rewardTitle">
-            Keep climbing.
-        </h3>
+            <div class="card rank-card">
 
-        <p id="rewardDescription">
-            Reach the Top 100 to compete for
-            the Founding 100 badge and campaign
-            rewards.
-        </p>
+                <div class="card-inner">
 
-    </section>
+                    <div class="rank-top">
 
-</div>
+                        <div>
+
+                            <div class="label">
+                                Your position
+                            </div>
+
+                            <div class="rank-number">
+                                #{{ rank|default("—", true) }}
+                            </div>
+
+                            <div class="rank-caption">
+                                Founding 100 leaderboard
+                            </div>
+
+                        </div>
+
+                        <div class="trophy">
+                            🏆
+                        </div>
+
+                    </div>
+
+                    <p class="rank-description">
+                        You are officially part of the ORQELETH AI
+                        early-access community. Keep sharing and
+                        climbing to improve your position.
+                    </p>
+
+                </div>
+
+            </div>
 
 
+            <!-- PROFILE CARD -->
+
+            <div class="card profile-card">
+
+                <div class="card-inner">
+
+                    <div class="label">
+                        Your profile
+                    </div>
+
+                    <div class="avatar">
+                        O
+                    </div>
+
+                    <div class="profile-name">
+                        {{ name|default("ORQELETH Founder", true) }}
+                    </div>
+
+                    <div class="profile-email">
+                        {{ email|default("", true) }}
+                    </div>
+
+                    <div class="verified">
+                        ✓ VERIFIED
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SHARE CARD -->
+
+            <div class="card share-card">
+
+                <div class="share-inner">
+
+                    <div class="share-content">
+
+                        <div>
+
+                            <div class="label">
+                                Grow your position
+                            </div>
+
+                            <div class="share-title">
+                                Share. Invite. Climb.
+                            </div>
+
+                            <p class="share-description">
+                                Tell your friends about ORQELETH AI
+                                and invite them to join the early-access
+                                queue.
+                            </p>
+
+                        </div>
+
+                        <div class="share-buttons">
+
+                            <button
+                                type="button"
+                                class="share-button share-primary"
+                                id="shareButton"
+                            >
+                                ↗ Share
+                            </button>
+
+                            <button
+                                type="button"
+                                class="share-button"
+                                id="copyButton"
+                            >
+                                ⧉ Copy Link
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CLIMB CARD -->
+
+            <div class="card climb-card">
+
+                <div class="climb-inner">
+
+                    <div class="label">
+                        Your climb
+                    </div>
+
+                    <div class="climb-title">
+                        Climb the leaderboard
+                    </div>
+
+                    <div class="climb-description">
+                        Every step takes you closer to the top.
+                    </div>
+
+                    <div class="progress-row">
+
+                        <span class="label">
+                            Progress
+                        </span>
+
+                        <span class="progress-number">
+                            0%
+                        </span>
+
+                    </div>
+
+                    <div class="progress-track">
+
+                        <div class="progress-bar"></div>
+
+                    </div>
+
+                    <div class="climb-button-area">
+
+                        <a
+                            href="/leaderboard"
+                            class="climb-button"
+                        >
+                            🏆 View Leaderboard →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
 <script>
 
-    let referralLink = "";
+    // =========================================================
+    // ORQELETH AI — DASHBOARD ACTIONS
+    // =========================================================
+
+    const shareButton = document.getElementById("shareButton");
+    const copyButton = document.getElementById("copyButton");
+
+    const shareUrl = window.location.origin;
+
+    const shareTitle = "Join ORQELETH AI";
+
+    const shareText =
+        "I'm joining ORQELETH AI early access. " +
+        "Join the queue and climb the Founding 100 leaderboard.";
 
 
-    // ==========================================
-    // GET USER DATA
-    // ==========================================
+    // =========================================================
+    // SHARE
+    // =========================================================
 
-    async function loadDashboard() {
+    if (shareButton) {
 
-        try {
+        shareButton.addEventListener("click", async function () {
 
-            const response =
-                await fetch("/api/me");
+            try {
 
-            if (!response.ok) {
+                if (navigator.share) {
 
-                window.location.href = "/";
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    });
 
-                return;
+                } else {
+
+                    await copyText(shareUrl);
+
+                    showButtonMessage(
+                        shareButton,
+                        "✓ Link Copied"
+                    );
+
+                }
+
+            } catch (error) {
+
+                // User cancelled native share.
+                // Do nothing in that case.
+
+                if (error && error.name !== "AbortError") {
+
+                    try {
+
+                        await copyText(shareUrl);
+
+                        showButtonMessage(
+                            shareButton,
+                            "✓ Link Copied"
+                        );
+
+                    } catch (copyError) {
+
+                        showButtonMessage(
+                            shareButton,
+                            "Copy failed"
+                        );
+
+                    }
+
+                }
+
             }
 
-            const data =
-                await response.json();
+        });
+
+    }
 
 
-            document.getElementById(
-                "queuePosition"
-            ).textContent =
-                "#" +
-                data.queue_position.toLocaleString();
+    // =========================================================
+    // COPY LINK
+    // =========================================================
+
+    if (copyButton) {
+
+        copyButton.addEventListener("click", async function () {
+
+            try {
+
+                await copyText(shareUrl);
+
+                showButtonMessage(
+                    copyButton,
+                    "✓ Copied!"
+                );
+
+            } catch (error) {
+
+                showButtonMessage(
+                    copyButton,
+                    "Copy failed"
+                );
+
+            }
+
+        });
+
+    }
 
 
-            document.getElementById(
-                "referralCount"
-            ).textContent =
-                data.verified_referrals;
+    // =========================================================
+    // COPY FUNCTION
+    // =========================================================
+
+    async function copyText(text) {
+
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+
+            await navigator.clipboard.writeText(text);
+
+            return;
+
+        }
 
 
-            document.getElementById(
-                "leaderboardRank"
-            ).textContent =
-                data.rank
-                    ? "#" + data.rank
-                    : "#—";
+        // Desktop fallback
 
+        const textarea =
+            document.createElement("textarea");
 
-            referralLink =
-                data.referral_link;
+        textarea.value = text;
 
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
 
-            document.getElementById(
-                "referralLink"
-            ).value =
-                referralLink;
+        document.body.appendChild(textarea);
 
+        textarea.focus();
+        textarea.select();
 
-            document.getElementById(
-                "shareMessage"
-            ).textContent =
-                `I'm racing to become one of the ORQELETH Founding 100. 🏆
+        const successful =
+            document.execCommand("copy");
 
-Top 100 get special Enterprise access.
+        document.body.removeChild(textarea);
 
-Join the queue: ${referralLink}`;
+        if (!successful) {
 
-
-            document.getElementById(
-                "targetMessage"
-            ).textContent =
-                data.referrals_needed > 0
-                    ? `${data.referrals_needed} verified referrals needed to reach the Top 100.`
-                    : "You're currently in the Top 100. Keep climbing! 🔥";
-
-
-            document.getElementById(
-                "rewardTitle"
-            ).textContent =
-                data.reward_title;
-
-
-            document.getElementById(
-                "rewardDescription"
-            ).textContent =
-                data.reward_description;
-
-
-        } catch (error) {
-
-            console.error(
-                "Dashboard error:",
-                error
-            );
+            throw new Error("Copy failed");
 
         }
 
     }
 
 
-    // ==========================================
-    // COPY
-    // ==========================================
+    // =========================================================
+    // BUTTON FEEDBACK
+    // =========================================================
 
-    async function copyReferralLink() {
+    function showButtonMessage(button, message) {
 
-        await navigator.clipboard.writeText(
-            referralLink
-        );
+        const originalText =
+            button.innerHTML;
 
-        const button =
-            document.querySelector(
-                ".copy-btn"
-            );
+        button.innerHTML = message;
 
-        button.textContent =
-            "COPIED ✓";
+        setTimeout(function () {
 
-        setTimeout(() => {
-
-            button.textContent =
-                "COPY LINK";
+            button.innerHTML =
+                originalText;
 
         }, 1800);
 
     }
 
-
-    // ==========================================
-    // SHARE MESSAGE
-    // ==========================================
-
-    function getShareText() {
-
-        return `I'm racing to become one of the ORQELETH Founding 100. 🏆
-
-Top 100 get special Enterprise access.
-
-Join the queue: ${referralLink}`;
-
-    }
-
-
-    // ==========================================
-    // WHATSAPP
-    // ==========================================
-
-    function shareWhatsApp() {
-
-        const url =
-            "https://wa.me/?text=" +
-            encodeURIComponent(
-                getShareText()
-            );
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-    // ==========================================
-    // X
-    // ==========================================
-
-    function shareX() {
-
-        const url =
-            "https://twitter.com/intent/tweet?text=" +
-            encodeURIComponent(
-                getShareText()
-            );
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-    // ==========================================
-    // TELEGRAM
-    // ==========================================
-
-    function shareTelegram() {
-
-        const url =
-            "https://t.me/share/url?url=" +
-            encodeURIComponent(
-                referralLink
-            ) +
-            "&text=" +
-            encodeURIComponent(
-                getShareText()
-            );
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-    // ==========================================
-    // FACEBOOK
-    // ==========================================
-
-    function shareFacebook() {
-
-        const url =
-            "https://www.facebook.com/sharer/sharer.php?u=" +
-            encodeURIComponent(
-                referralLink
-            );
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-    // ==========================================
-    // NATIVE MOBILE SHARE
-    // ==========================================
-
-    async function nativeShare() {
-
-        if (!navigator.share) {
-
-            await copyReferralLink();
-
-            return;
-        }
-
-        try {
-
-            await navigator.share({
-
-                title:
-                    "ORQELETH AI — Founding 100",
-
-                text:
-                    getShareText(),
-
-                url:
-                    referralLink
-
-            });
-
-        } catch (error) {
-
-            console.log(
-                "Share cancelled."
-            );
-
-        }
-
-    }
-
-
-    // ==========================================
-    // LOAD
-    // ==========================================
-
-    loadDashboard();
-
 </script>
-
-</body>
-</html>
