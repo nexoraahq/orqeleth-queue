@@ -200,6 +200,30 @@ def valid_email(email):
 @app.route("/")
 def home():
 
+    referral_code = request.args.get(
+        "ref",
+        ""
+    ).strip().upper()
+
+    if referral_code:
+
+        connection = get_db()
+
+        referrer = connection.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE referral_code = ?
+            AND is_verified = 1
+            """,
+            (referral_code,)
+        ).fetchone()
+
+        connection.close()
+
+        if referrer:
+            session["referral_code"] = referral_code
+
     return render_template(
         "index.html"
     )
@@ -301,6 +325,11 @@ def register():
         data.get("referred_by", "")
     ).strip().upper()
 
+    if not referred_by:
+        referred_by = session.get(
+            "referral_code",
+            ""
+        ).strip().upper()
 
     # --------------------------------------------------------
     # VALIDATION
@@ -505,9 +534,14 @@ def register():
             "message":
                 "Email service is not configured."
         }), 500
-            # ========================================================
-    # SEND VERIFICATION EMAIL
-    # ========================================================
+
+
+# ============================================================
+# END OF PART 1
+# ============================================================
+# ============================================================
+# SEND VERIFICATION EMAIL
+# ============================================================
 
     try:
 
@@ -823,8 +857,130 @@ def dashboard():
         return redirect("/")
 
 
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE user_id = ?
+        AND is_verified = 1
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+
+    if not user:
+
+        connection.close()
+
+        session.clear()
+
+        return redirect("/")
+
+
+    # ========================================================
+    # LEADERBOARD RANK
+    # ========================================================
+
+    rank_result = connection.execute(
+        """
+        SELECT COUNT(*) + 1
+        FROM users AS other
+        WHERE other.is_verified = 1
+        AND (
+            other.verified_referrals > ?
+            OR (
+                other.verified_referrals = ?
+                AND other.created_at < ?
+            )
+        )
+        """,
+        (
+            user["verified_referrals"],
+            user["verified_referrals"],
+            user["created_at"]
+        )
+    ).fetchone()
+
+
+    rank = rank_result[0]
+
+
+    # ========================================================
+    # REFERRALS NEEDED
+    # ========================================================
+
+    referrals_needed = 0
+
+
+    if rank > 100:
+
+        top_100_user = connection.execute(
+            """
+            SELECT verified_referrals
+            FROM users
+            WHERE is_verified = 1
+            ORDER BY
+                verified_referrals DESC,
+                created_at ASC
+            LIMIT 1 OFFSET 99
+            """
+        ).fetchone()
+
+
+        if top_100_user:
+
+            referrals_needed = max(
+                top_100_user["verified_referrals"]
+                - user["verified_referrals"]
+                + 1,
+                0
+            )
+
+        else:
+
+            referrals_needed = max(
+                1 - user["verified_referrals"],
+                0
+            )
+
+
+    # ========================================================
+    # REFERRAL LINK
+    # ========================================================
+
+    referral_link = (
+        url_for(
+            "home",
+            _external=True
+        )
+        + "?ref="
+        + user["referral_code"]
+    )
+
+
+    connection.close()
+
+
     return render_template(
-        "dashboard.html"
+        "dashboard.html",
+
+        name=user["name"],
+
+        email=user["email"],
+
+        rank=rank,
+
+        queue_position=user["queue_position"],
+
+        verified_referrals=user["verified_referrals"],
+
+        referrals_needed=referrals_needed,
+
+        referral_code=user["referral_code"],
+
+        referral_link=referral_link
     )
 
 
