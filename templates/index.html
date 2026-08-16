@@ -158,17 +158,7 @@
             white-space: nowrap;
         }
 
-        .brand img {
-            width: 54px;
-            height: 54px;
-
-            object-fit: contain;
-
-            border-radius: 14px;
-
-            filter:
-                drop-shadow(0 0 10px rgba(0,140,255,.45));
-        }
+        
 
         .brand span {
             color: #a875ff;
@@ -1193,10 +1183,7 @@
                 gap: 9px;
             }
 
-            .brand img {
-                width: 42px;
-                height: 42px;
-            }
+            
 
             .leaderboard-btn {
                 padding: 11px 17px;
@@ -1308,15 +1295,8 @@
 <header class="navbar">
 
     <div class="brand">
-
-        <img
-            src="{{ url_for('static', filename='images/logo.png.jpeg') }}"
-            alt="Orqeleth AI Logo"
-        >
-
-        ORQELETH<span>AI</span>
-
-    </div>
+    ORQELETH<span>AI</span>
+</div>
 
     <button
         class="leaderboard-btn"
