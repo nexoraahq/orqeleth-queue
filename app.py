@@ -15,23 +15,21 @@ import resend
 
 BASE_DIR = Path(__file__).resolve().parent
 
-ROOT_ENV = BASE_DIR / ".env"
-DATABASE_ENV = BASE_DIR / "database" / ".env"
-
-if ROOT_ENV.exists():
-    load_dotenv(ROOT_ENV)
-elif DATABASE_ENV.exists():
-    load_dotenv(DATABASE_ENV)
-else:
-    load_dotenv()
-
+load_dotenv(BASE_DIR / ".env")
+load_dotenv()
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+# This must be a sender address on your verified Resend domain.
+RESEND_FROM_EMAIL = os.getenv(
+    "RESEND_FROM_EMAIL",
+    "ORQELETH AI <noreply@joinorqeleth.com>"
+)
 
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 else:
-    print("WARNING: RESEND_API_KEY was not found.")
+    print("WARNING: RESEND_API_KEY is missing.")
 
 
 # ============================================================
@@ -42,7 +40,7 @@ app = Flask(__name__)
 
 app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
-    secrets.token_hex(32)
+    "orqeleth-development-secret-change-this"
 )
 
 
@@ -57,11 +55,8 @@ DATABASE = DATABASE_DIR / "queue.db"
 
 
 def get_db():
-
     connection = sqlite3.connect(DATABASE)
-
     connection.row_factory = sqlite3.Row
-
     return connection
 
 
@@ -72,15 +67,29 @@ def init_database():
     connection.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+
             user_id TEXT UNIQUE NOT NULL,
+
             name TEXT NOT NULL,
+
             email TEXT UNIQUE NOT NULL,
+
             username TEXT UNIQUE,
+
             referral_code TEXT UNIQUE NOT NULL,
+
             referred_by TEXT,
+
             is_verified INTEGER DEFAULT 0,
+
             verified_referrals INTEGER DEFAULT 0,
+
             queue_position INTEGER,
+
+            verification_token TEXT,
+
+            verification_expires TIMESTAMP,
+
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -91,7 +100,7 @@ def init_database():
     """)
 
     connection.execute("""
-        CREATE INDEX IF NOT EXISTS idx_users_referral_code
+        CREATE INDEX IF NOT EXISTS idx_users_referral
         ON users(referral_code)
     """)
 
@@ -100,13 +109,8 @@ def init_database():
         ON users(is_verified)
     """)
 
-    connection.execute("""
-        CREATE INDEX IF NOT EXISTS idx_users_referrer
-        ON users(referred_by)
-    """)
-
     # --------------------------------------------------------
-    # Older database compatibility
+    # Upgrade older database versions
     # --------------------------------------------------------
 
     columns = connection.execute(
@@ -133,7 +137,6 @@ def init_database():
         """)
 
     connection.commit()
-
     connection.close()
 
 
@@ -141,11 +144,19 @@ def init_database():
 # HELPERS
 # ============================================================
 
+def generate_user_id():
+
+    return (
+        "ORQ-"
+        + secrets.token_hex(6).upper()
+    )
+
+
 def generate_code(length=8):
 
     characters = (
-        string.ascii_uppercase +
-        string.digits
+        string.ascii_uppercase
+        + string.digits
     )
 
     while True:
@@ -172,19 +183,14 @@ def generate_code(length=8):
             return code
 
 
-def generate_user_id():
-
-    return "ORQ-" + secrets.token_hex(6).upper()
-
-
 def valid_email(email):
 
     pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
-    return re.match(
-        pattern,
-        email
-    ) is not None
+    return (
+        re.match(pattern, email)
+        is not None
+    )
 
 
 # ============================================================
@@ -194,71 +200,22 @@ def valid_email(email):
 @app.route("/")
 def home():
 
-    # Support referral links such as:
-    # http://127.0.0.1:5000/?ref=ABC12345
-
-    referral_code = request.args.get(
-        "ref",
-        ""
-    ).strip().upper()
-
-    if referral_code:
-
-        connection = get_db()
-
-        referrer = connection.execute(
-            """
-            SELECT id
-            FROM users
-            WHERE referral_code = ?
-            AND is_verified = 1
-            """,
-            (referral_code,)
-        ).fetchone()
-
-        connection.close()
-
-        if referrer:
-
-            session["referral_code"] = referral_code
-
     return render_template(
         "index.html"
     )
 
 
 # ============================================================
-# REFERRAL LANDING
+# HEALTH CHECK
 # ============================================================
 
-@app.route("/queue/<referral_code>")
-def referral_landing(referral_code):
+@app.route("/health")
+def health():
 
-    referral_code = (
-        referral_code
-        .strip()
-        .upper()
-    )
-
-    connection = get_db()
-
-    referrer = connection.execute(
-        """
-        SELECT id
-        FROM users
-        WHERE referral_code = ?
-        AND is_verified = 1
-        """,
-        (referral_code,)
-    ).fetchone()
-
-    connection.close()
-
-    if referrer:
-
-        session["referral_code"] = referral_code
-
-    return redirect("/")
+    return jsonify({
+        "status": "ok",
+        "service": "ORQELETH Queue"
+    })
 
 
 # ============================================================
@@ -308,6 +265,10 @@ def campaign():
 )
 def register():
 
+    # --------------------------------------------------------
+    # READ REQUEST
+    # --------------------------------------------------------
+
     data = request.get_json(
         silent=True
     )
@@ -315,57 +276,30 @@ def register():
     if not data:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-                "Invalid request."
-
+            "message": "Invalid request."
         }), 400
 
 
     # --------------------------------------------------------
-    # INPUT
+    # GET DATA
     # --------------------------------------------------------
 
     name = str(
-        data.get(
-            "name",
-            ""
-        )
+        data.get("name", "")
     ).strip()
 
     email = str(
-        data.get(
-            "email",
-            ""
-        )
+        data.get("email", "")
     ).strip().lower()
 
     username = str(
-        data.get(
-            "username",
-            ""
-        )
+        data.get("username", "")
     ).strip()
 
     referred_by = str(
-        data.get(
-            "referred_by",
-            ""
-        )
+        data.get("referred_by", "")
     ).strip().upper()
-
-
-    # If frontend didn't send referral code,
-    # use the referral stored in the session.
-
-    if not referred_by:
-
-        referred_by = session.get(
-            "referral_code",
-            ""
-        ).strip().upper()
 
 
     # --------------------------------------------------------
@@ -375,48 +309,34 @@ def register():
     if not name:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-                "Please enter your name."
-
+            "message": "Please enter your name."
         }), 400
 
 
     if len(name) > 80:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-                "Name is too long."
-
+            "message": "Name is too long."
         }), 400
 
 
     if not valid_email(email):
 
         return jsonify({
-
             "success": False,
-
             "message":
                 "Please enter a valid email address."
-
         }), 400
 
 
     if len(username) > 30:
 
         return jsonify({
-
             "success": False,
-
             "message":
                 "Username is too long."
-
         }), 400
 
 
@@ -440,18 +360,14 @@ def register():
         (email,)
     ).fetchone()
 
-
     if existing:
 
         connection.close()
 
         return jsonify({
-
             "success": False,
-
             "message":
                 "This email is already registered."
-
         }), 409
 
 
@@ -461,21 +377,17 @@ def register():
 
     valid_referrer = None
 
-
     if referred_by:
 
         referrer = connection.execute(
             """
-            SELECT
-                id,
-                referral_code
+            SELECT referral_code
             FROM users
             WHERE referral_code = ?
             AND is_verified = 1
             """,
             (referred_by,)
         ).fetchone()
-
 
         if referrer:
 
@@ -485,7 +397,7 @@ def register():
 
 
     # --------------------------------------------------------
-    # USER CREATION
+    # CREATE USER DATA
     # --------------------------------------------------------
 
     user_id = generate_user_id()
@@ -537,7 +449,9 @@ def register():
                 user_id,
                 name,
                 email,
-                username if username else None,
+                username
+                if username
+                else None,
                 referral_code,
                 valid_referrer,
                 queue_position,
@@ -547,18 +461,14 @@ def register():
 
         connection.commit()
 
-
     except sqlite3.IntegrityError:
 
         connection.close()
 
         return jsonify({
-
             "success": False,
-
             "message":
                 "Registration could not be completed."
-
         }), 409
 
 
@@ -574,107 +484,10 @@ def register():
 
 
     # --------------------------------------------------------
-    # EMAIL CONFIGURATION
+    # CHECK RESEND
     # --------------------------------------------------------
 
     if not RESEND_API_KEY:
-
-        print(
-            "EMAIL ERROR: "
-            "RESEND_API_KEY is missing."
-        )
-
-        connection.close()
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Email service is not configured."
-
-        }), 500
-
-
-        # =========================================================
-    # SEND VERIFICATION EMAIL
-    # =========================================================
-
-    try:
-        email_response = resend.Emails.send({
-            "from": "ORQELETH AI <noreply@joinorqeleth.com>",
-            "to": [email],
-            "subject": "Verify your ORQELETH AI registration",
-            "html": f"""
-            <div style="
-                font-family: Arial, sans-serif;
-                max-width: 600px;
-                margin: auto;
-                padding: 30px;
-                background: #0b0b12;
-                color: #ffffff;
-                border-radius: 16px;
-            ">
-                <h1>ORQELETH AI</h1>
-
-                <h2>Verify your registration</h2>
-
-                <p>
-                    Welcome to the ORQELETH AI early-access queue.
-                </p>
-
-                <p>
-                    Click the button below to verify your email address.
-                </p>
-
-                <a href="{verification_url}"
-                   style="
-                       display: inline-block;
-                       padding: 14px 24px;
-                       background: #7c3cff;
-                       color: white;
-                       text-decoration: none;
-                       border-radius: 10px;
-                       font-weight: bold;
-                   ">
-                    VERIFY EMAIL
-                </a>
-
-                <p style="margin-top: 25px; color: #999;">
-                    If you did not register for ORQELETH AI, you can ignore
-                    this email.
-                </p>
-            </div>
-            """
-        })
-
-        print(
-            "EMAIL SENT:",
-            email_response
-        )
-
-    except Exception as error:
-        print(
-            "EMAIL ERROR:",
-            repr(error)
-        )
-
-        # Remove failed registration so the user can try again.
-        try:
-            conn.execute(
-                "DELETE FROM queue WHERE email = ?",
-                (email,)
-            )
-            conn.commit()
-        except Exception:
-            pass
-
-        return jsonify({
-            "success": False,
-            "message": "We could not send the verification email. Please try again."
-        }), 500
-        # Remove failed registration so the user
-        # can try the same email again.
 
         connection.execute(
             """
@@ -685,32 +498,152 @@ def register():
         )
 
         connection.commit()
-
         connection.close()
 
         return jsonify({
-
             "success": False,
+            "message":
+                "Email service is not configured."
+        }), 500
+            # ========================================================
+    # SEND VERIFICATION EMAIL
+    # ========================================================
 
+    try:
+
+        email_response = resend.Emails.send({
+
+            "from":
+                RESEND_FROM_EMAIL,
+
+            "to":
+                [email],
+
+            "subject":
+                "Verify your ORQELETH AI registration",
+
+            "html": f"""
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 40px auto;
+                    padding: 40px;
+                    background: #0b0b12;
+                    color: #ffffff;
+                    border-radius: 18px;
+                ">
+
+                    <h1 style="
+                        color: #b875ff;
+                        margin-bottom: 10px;
+                    ">
+                        ORQELETH AI
+                    </h1>
+
+                    <h2>
+                        You're almost in.
+                    </h2>
+
+                    <p>
+                        Hi {name},
+                    </p>
+
+                    <p>
+                        Thanks for joining the
+                        ORQELETH AI Founding 100 queue.
+                    </p>
+
+                    <p>
+                        Your current queue position is:
+                        <strong>#{queue_position}</strong>
+                    </p>
+
+                    <p>
+                        Click the button below to
+                        verify your email address.
+                    </p>
+
+                    <p style="
+                        margin: 30px 0;
+                    ">
+
+                        <a
+                            href="{verification_url}"
+                            style="
+                                display: inline-block;
+                                padding: 15px 25px;
+                                background: #8b4dff;
+                                color: #ffffff;
+                                text-decoration: none;
+                                border-radius: 10px;
+                                font-weight: bold;
+                            "
+                        >
+                            VERIFY EMAIL →
+                        </a>
+
+                    </p>
+
+                    <p style="
+                        color: #999999;
+                        font-size: 13px;
+                    ">
+                        If you did not register for
+                        ORQELETH AI, you can safely
+                        ignore this email.
+                    </p>
+
+                </div>
+            """
+        })
+
+        print(
+            "EMAIL SENT:",
+            email_response
+        )
+
+
+    except Exception as error:
+
+        print(
+            "EMAIL ERROR:",
+            repr(error)
+        )
+
+        # Remove failed registration.
+        connection.execute(
+            """
+            DELETE FROM users
+            WHERE user_id = ?
+            """,
+            (user_id,)
+        )
+
+        connection.commit()
+        connection.close()
+
+        return jsonify({
+            "success": False,
             "message":
                 "We could not send the verification email. "
                 "Please try again."
-
         }), 500
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SUCCESS
-    # --------------------------------------------------------
+    # ========================================================
 
     connection.close()
 
     return jsonify({
 
-        "success": True,
+        "success":
+            True,
 
         "message":
-            "Verification email sent.",
+            "Registration received. "
+            "Check your email to verify.",
 
         "user_id":
             user_id,
@@ -730,13 +663,12 @@ def register():
 
 
 # ============================================================
-# END OF PART 1
-# ============================================================
-# ============================================================
 # EMAIL VERIFICATION
 # ============================================================
 
-@app.route("/verify/<token>")
+@app.route(
+    "/verify/<token>"
+)
 def verify_email(token):
 
     connection = get_db()
@@ -766,17 +698,30 @@ def verify_email(token):
             <title>Invalid Verification</title>
         </head>
 
-        <body>
-            <h1>Invalid verification link</h1>
+        <body style="
+            background:#050509;
+            color:white;
+            font-family:Arial,sans-serif;
+            text-align:center;
+            padding:80px 20px;
+        ">
+
+            <h1>
+                Invalid verification link
+            </h1>
 
             <p>
                 This verification link is invalid
                 or has already been used.
             </p>
 
-            <a href="/">
+            <a
+                href="/"
+                style="color:#a875ff;"
+            >
                 Return to ORQELETH AI
             </a>
+
         </body>
         </html>
         """, 400
@@ -788,11 +733,15 @@ def verify_email(token):
 
     if user["is_verified"] == 1:
 
+        session["user_id"] = (
+            user["user_id"]
+        )
+
         connection.close()
 
-        session["user_id"] = user["user_id"]
-
-        return redirect("/dashboard")
+        return redirect(
+            "/dashboard"
+        )
 
 
     # --------------------------------------------------------
@@ -831,7 +780,6 @@ def verify_email(token):
             )
         ).fetchone()
 
-
         if referrer:
 
             connection.execute(
@@ -847,254 +795,20 @@ def verify_email(token):
 
     connection.commit()
 
-
-    # --------------------------------------------------------
-    # CREATE LOGIN SESSION
-    # --------------------------------------------------------
-
-    session["user_id"] = user["user_id"]
-
-
-    # Referral session is no longer needed
-    session.pop(
-        "referral_code",
-        None
+    session["user_id"] = (
+        user["user_id"]
     )
-
 
     connection.close()
 
 
     # --------------------------------------------------------
-    # SEND TO DASHBOARD
+    # VERIFIED PAGE
     # --------------------------------------------------------
 
-    return redirect("/dashboard")
-
-
-# ============================================================
-# CURRENT USER / DASHBOARD DATA
-# ============================================================
-
-@app.route("/api/me")
-def current_user():
-
-    if "user_id" not in session:
-
-        return jsonify({
-            "success": False,
-            "message": "Not authenticated."
-        }), 401
-
-
-    connection = get_db()
-
-
-    user = connection.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-
-    if not user:
-
-        connection.close()
-
-        session.clear()
-
-        return jsonify({
-            "success": False,
-            "message": "Verified user not found."
-        }), 401
-
-
-    # ========================================================
-    # LEADERBOARD RANK
-    # ========================================================
-
-    rank_result = connection.execute(
-        """
-        SELECT COUNT(*) + 1
-        FROM users AS other
-        WHERE other.is_verified = 1
-        AND (
-            other.verified_referrals > ?
-            OR (
-                other.verified_referrals = ?
-                AND other.created_at < ?
-            )
-        )
-        """,
-        (
-            user["verified_referrals"],
-            user["verified_referrals"],
-            user["created_at"]
-        )
-    ).fetchone()
-
-
-    rank = rank_result[0]
-
-
-    # ========================================================
-    # REFERRALS NEEDED FOR TOP 100
-    # ========================================================
-
-    referrals_needed = 0
-
-
-    if rank > 100:
-
-        top_100_user = connection.execute(
-            """
-            SELECT verified_referrals
-            FROM users
-            WHERE is_verified = 1
-            ORDER BY
-                verified_referrals DESC,
-                created_at ASC
-            LIMIT 1 OFFSET 99
-            """
-        ).fetchone()
-
-
-        if top_100_user:
-
-            referrals_needed = max(
-                (
-                    top_100_user["verified_referrals"]
-                    -
-                    user["verified_referrals"]
-                    +
-                    1
-                ),
-                0
-            )
-
-    else:
-
-        referrals_needed = max(
-            1 - user["verified_referrals"],
-            0
-        )
-
-
-    # ========================================================
-    # REWARD TIER
-    # ========================================================
-
-    if rank <= 25:
-
-        reward_title = "1 Year Enterprise"
-
-        reward_description = (
-            "Rank #1–25: eligible for "
-            "1 year of ORQELETH Enterprise "
-            "plus the Founding 100 badge."
-        )
-
-
-    elif rank <= 50:
-
-        reward_title = "6 Months Enterprise"
-
-        reward_description = (
-            "Rank #26–50: eligible for "
-            "6 months of ORQELETH Enterprise "
-            "plus the Founding 100 badge."
-        )
-
-
-    elif rank <= 75:
-
-        reward_title = "3 Months Enterprise"
-
-        reward_description = (
-            "Rank #51–75: eligible for "
-            "3 months of ORQELETH Enterprise "
-            "plus the Founding 100 badge."
-        )
-
-
-    elif rank <= 100:
-
-        reward_title = "1 Month Enterprise"
-
-        reward_description = (
-            "Rank #76–100: eligible for "
-            "1 month of ORQELETH Enterprise "
-            "plus the Founding 100 badge."
-        )
-
-
-    else:
-
-        reward_title = "Keep Climbing"
-
-        reward_description = (
-            "Reach the Top 100 to become "
-            "eligible for the Founding 100 "
-            "rewards and badge."
-        )
-
-
-    # ========================================================
-    # REFERRAL LINK
-    # ========================================================
-
-    referral_link = (
-        url_for(
-            "home",
-            _external=True
-        )
-        + "?ref="
-        + user["referral_code"]
+    return render_template(
+        "verify.html"
     )
-
-
-    connection.close()
-
-
-    # ========================================================
-    # DASHBOARD RESPONSE
-    # ========================================================
-
-    return jsonify({
-
-        "success": True,
-
-        "name":
-            user["name"],
-
-        "queue_position":
-            user["queue_position"],
-
-        "verified_referrals":
-            user["verified_referrals"],
-
-        "rank":
-            rank,
-
-        "referrals_needed":
-            referrals_needed,
-
-        "referral_code":
-            user["referral_code"],
-
-        "referral_link":
-            referral_link,
-
-        "reward_title":
-            reward_title,
-
-        "reward_description":
-            reward_description
-    })
 
 
 # ============================================================
@@ -1109,486 +823,31 @@ def dashboard():
         return redirect("/")
 
 
-    connection = get_db()
-
-
-    user = connection.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-
-    connection.close()
-
-
-    if not user:
-
-        session.clear()
-
-        return redirect("/")
-
-
     return render_template(
-        "dashboard.html",
-        user=user
+        "dashboard.html"
     )
 
 
 # ============================================================
-# LOGOUT
-# ============================================================
-
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/")
-
-
-# ============================================================
-# REFERRAL INFORMATION
-# ============================================================
-
-@app.route("/api/referral")
-def referral_info():
-
-    if "user_id" not in session:
-
-        return jsonify({
-            "success": False,
-            "message": "You are not logged in."
-        }), 401
-
-
-    connection = get_db()
-
-
-    user = connection.execute(
-        """
-        SELECT
-            referral_code,
-            verified_referrals,
-            queue_position
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-
-    connection.close()
-
-
-    if not user:
-
-        return jsonify({
-            "success": False,
-            "message": "User not found."
-        }), 404
-
-
-    referral_link = (
-        url_for(
-            "home",
-            _external=True
-        )
-        + "?ref="
-        + user["referral_code"]
-    )
-
-
-    return jsonify({
-
-        "success": True,
-
-        "referral_code":
-            user["referral_code"],
-
-        "verified_referrals":
-            user["verified_referrals"],
-
-        "queue_position":
-            user["queue_position"],
-
-        "referral_link":
-            referral_link
-    })
-
-
-# ============================================================
-# START
+# STARTUP
 # ============================================================
 
 init_database()
 
 
-if __name__ == "__main__":
-
-    app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
-    )
-    @app.route("/api/me")
-def current_user():
-
-    if "user_id" not in session:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Not authenticated."
-
-        }), 401
-
-    connection = get_db()
-
-    user = connection.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-    if not user:
-
-        connection.close()
-
-        session.clear()
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "Verified user not found."
-
-        }), 401
-
-    rank_result = connection.execute(
-        """
-        SELECT COUNT(*) + 1
-        FROM users AS other
-        WHERE other.is_verified = 1
-        AND (
-            other.verified_referrals > ?
-            OR (
-                other.verified_referrals = ?
-                AND other.created_at < ?
-            )
-        )
-        """,
-        (
-            user["verified_referrals"],
-            user["verified_referrals"],
-            user["created_at"]
-        )
-    ).fetchone()
-
-    rank = rank_result[0]
-
-    referrals_needed = 0
-
-    if rank > 100:
-
-        top_100_user = connection.execute(
-            """
-            SELECT verified_referrals
-            FROM users
-            WHERE is_verified = 1
-            ORDER BY
-                verified_referrals DESC,
-                created_at ASC
-            LIMIT 1 OFFSET 99
-            """
-        ).fetchone()
-
-        if top_100_user:
-
-            referrals_needed = max(
-
-                top_100_user[
-                    "verified_referrals"
-                ]
-
-                - user[
-                    "verified_referrals"
-                ]
-
-                + 1,
-
-                0
-            )
-
-    else:
-
-        referrals_needed = max(
-
-            1
-            - user[
-                "verified_referrals"
-            ],
-
-            0
-        )
-
-    if rank <= 25:
-
-        reward_title = (
-            "1 Year Enterprise"
-        )
-
-        reward_description = (
-            "Rank #1–25: eligible for 1 year "
-            "of ORQELETH Enterprise plus "
-            "the Founding 100 badge."
-        )
-
-    elif rank <= 50:
-
-        reward_title = (
-            "6 Months Enterprise"
-        )
-
-        reward_description = (
-            "Rank #26–50: eligible for 6 months "
-            "of ORQELETH Enterprise plus "
-            "the Founding 100 badge."
-        )
-
-    elif rank <= 75:
-
-        reward_title = (
-            "3 Months Enterprise"
-        )
-
-        reward_description = (
-            "Rank #51–75: eligible for 3 months "
-            "of ORQELETH Enterprise plus "
-            "the Founding 100 badge."
-        )
-
-    elif rank <= 100:
-
-        reward_title = (
-            "1 Month Enterprise"
-        )
-
-        reward_description = (
-            "Rank #76–100: eligible for 1 month "
-            "of ORQELETH Enterprise plus "
-            "the Founding 100 badge."
-        )
-
-    else:
-
-        reward_title = (
-            "Keep Climbing"
-        )
-
-        reward_description = (
-            "Reach the Top 100 to become "
-            "eligible for the Founding 100 "
-            "rewards and badge."
-        )
-
-    referral_link = (
-
-        url_for(
-            "home",
-            _external=True
-        )
-
-        + "?ref="
-
-        + user[
-            "referral_code"
-        ]
-    )
-
-    connection.close()
-
-    return jsonify({
-
-        "success":
-            True,
-
-        "name":
-            user["name"],
-
-        "queue_position":
-            user["queue_position"],
-
-        "verified_referrals":
-            user["verified_referrals"],
-
-        "rank":
-            rank,
-
-        "referrals_needed":
-            referrals_needed,
-
-        "referral_code":
-            user["referral_code"],
-
-        "referral_link":
-            referral_link,
-
-        "reward_title":
-            reward_title,
-
-        "reward_description":
-            reward_description
-    })
-
-
-@app.route("/dashboard")
-def dashboard():
-
-    if "user_id" not in session:
-
-        return redirect("/")
-
-    connection = get_db()
-
-    user = connection.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-    connection.close()
-
-    if not user:
-
-        session.clear()
-
-        return redirect("/")
-
-    return render_template(
-        "dashboard.html",
-        user=user
-    )
-
-
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/")
-
-
-@app.route("/api/referral")
-def referral_info():
-
-    if "user_id" not in session:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "You are not logged in."
-
-        }), 401
-
-    connection = get_db()
-
-    user = connection.execute(
-        """
-        SELECT
-            referral_code,
-            verified_referrals,
-            queue_position
-        FROM users
-        WHERE user_id = ?
-        AND is_verified = 1
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-    connection.close()
-
-    if not user:
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                "User not found."
-
-        }), 404
-
-    referral_link = (
-
-        url_for(
-            "home",
-            _external=True
-        )
-
-        + "?ref="
-
-        + user[
-            "referral_code"
-        ]
-    )
-
-    return jsonify({
-
-        "success":
-            True,
-
-        "referral_code":
-            user["referral_code"],
-
-        "verified_referrals":
-            user["verified_referrals"],
-
-        "queue_position":
-            user["queue_position"],
-
-        "referral_link":
-            referral_link
-    })
-
-
-init_database()
-
+# ============================================================
+# LOCAL DEVELOPMENT
+# ============================================================
 
 if __name__ == "__main__":
 
     app.run(
-
-        debug=True,
-
         host="0.0.0.0",
-
         port=int(
             os.getenv(
                 "PORT",
-                5000
+                "5000"
             )
-        )
+        ),
+        debug=True
     )
