@@ -605,7 +605,7 @@ def register():
         email_response = resend.Emails.send({
 
             "from":
-                from_email = os.getenv("RESEND_FROM_EMAIL", "ORQELETH AI <noreply@joinorqeleth.com>")
+                from_email = "ORQELETH AI <noreply@joinorqeleth.com>"
 
             "to":
                 [email],
