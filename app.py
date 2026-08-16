@@ -1250,3 +1250,359 @@ if __name__ == "__main__":
         host="127.0.0.1",
         port=5000
     )
+    @app.route("/api/me")
+def current_user():
+
+    if "user_id" not in session:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Not authenticated."
+
+        }), 401
+
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE user_id = ?
+        AND is_verified = 1
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    if not user:
+
+        connection.close()
+
+        session.clear()
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "Verified user not found."
+
+        }), 401
+
+    rank_result = connection.execute(
+        """
+        SELECT COUNT(*) + 1
+        FROM users AS other
+        WHERE other.is_verified = 1
+        AND (
+            other.verified_referrals > ?
+            OR (
+                other.verified_referrals = ?
+                AND other.created_at < ?
+            )
+        )
+        """,
+        (
+            user["verified_referrals"],
+            user["verified_referrals"],
+            user["created_at"]
+        )
+    ).fetchone()
+
+    rank = rank_result[0]
+
+    referrals_needed = 0
+
+    if rank > 100:
+
+        top_100_user = connection.execute(
+            """
+            SELECT verified_referrals
+            FROM users
+            WHERE is_verified = 1
+            ORDER BY
+                verified_referrals DESC,
+                created_at ASC
+            LIMIT 1 OFFSET 99
+            """
+        ).fetchone()
+
+        if top_100_user:
+
+            referrals_needed = max(
+
+                top_100_user[
+                    "verified_referrals"
+                ]
+
+                - user[
+                    "verified_referrals"
+                ]
+
+                + 1,
+
+                0
+            )
+
+    else:
+
+        referrals_needed = max(
+
+            1
+            - user[
+                "verified_referrals"
+            ],
+
+            0
+        )
+
+    if rank <= 25:
+
+        reward_title = (
+            "1 Year Enterprise"
+        )
+
+        reward_description = (
+            "Rank #1–25: eligible for 1 year "
+            "of ORQELETH Enterprise plus "
+            "the Founding 100 badge."
+        )
+
+    elif rank <= 50:
+
+        reward_title = (
+            "6 Months Enterprise"
+        )
+
+        reward_description = (
+            "Rank #26–50: eligible for 6 months "
+            "of ORQELETH Enterprise plus "
+            "the Founding 100 badge."
+        )
+
+    elif rank <= 75:
+
+        reward_title = (
+            "3 Months Enterprise"
+        )
+
+        reward_description = (
+            "Rank #51–75: eligible for 3 months "
+            "of ORQELETH Enterprise plus "
+            "the Founding 100 badge."
+        )
+
+    elif rank <= 100:
+
+        reward_title = (
+            "1 Month Enterprise"
+        )
+
+        reward_description = (
+            "Rank #76–100: eligible for 1 month "
+            "of ORQELETH Enterprise plus "
+            "the Founding 100 badge."
+        )
+
+    else:
+
+        reward_title = (
+            "Keep Climbing"
+        )
+
+        reward_description = (
+            "Reach the Top 100 to become "
+            "eligible for the Founding 100 "
+            "rewards and badge."
+        )
+
+    referral_link = (
+
+        url_for(
+            "home",
+            _external=True
+        )
+
+        + "?ref="
+
+        + user[
+            "referral_code"
+        ]
+    )
+
+    connection.close()
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "name":
+            user["name"],
+
+        "queue_position":
+            user["queue_position"],
+
+        "verified_referrals":
+            user["verified_referrals"],
+
+        "rank":
+            rank,
+
+        "referrals_needed":
+            referrals_needed,
+
+        "referral_code":
+            user["referral_code"],
+
+        "referral_link":
+            referral_link,
+
+        "reward_title":
+            reward_title,
+
+        "reward_description":
+            reward_description
+    })
+
+
+@app.route("/dashboard")
+def dashboard():
+
+    if "user_id" not in session:
+
+        return redirect("/")
+
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE user_id = ?
+        AND is_verified = 1
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    connection.close()
+
+    if not user:
+
+        session.clear()
+
+        return redirect("/")
+
+    return render_template(
+        "dashboard.html",
+        user=user
+    )
+
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/")
+
+
+@app.route("/api/referral")
+def referral_info():
+
+    if "user_id" not in session:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "You are not logged in."
+
+        }), 401
+
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT
+            referral_code,
+            verified_referrals,
+            queue_position
+        FROM users
+        WHERE user_id = ?
+        AND is_verified = 1
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    connection.close()
+
+    if not user:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                "User not found."
+
+        }), 404
+
+    referral_link = (
+
+        url_for(
+            "home",
+            _external=True
+        )
+
+        + "?ref="
+
+        + user[
+            "referral_code"
+        ]
+    )
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "referral_code":
+            user["referral_code"],
+
+        "verified_referrals":
+            user["verified_referrals"],
+
+        "queue_position":
+            user["queue_position"],
+
+        "referral_link":
+            referral_link
+    })
+
+
+init_database()
+
+
+if __name__ == "__main__":
+
+    app.run(
+
+        debug=True,
+
+        host="0.0.0.0",
+
+        port=int(
+            os.getenv(
+                "PORT",
+                5000
+            )
+        )
+    )
