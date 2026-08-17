@@ -632,9 +632,9 @@
             <span class="logo-ai">AI</span>
         </a>
 
-        <a href="/leaderboard" class="leaderboard-link">
-            Leaderboard
-        </a>
+       <a href="/#leaderboard" class="leaderboard-link">
+    Leaderboard
+       </a>
 
     </header>
 
@@ -833,12 +833,12 @@
 
                     <div class="climb-button-area">
 
-                        <a
-                            href="/leaderboard"
-                            class="climb-button"
-                        >
-                            🏆 View Leaderboard →
-                        </a>
+                       <a
+                          href="/#leaderboard"
+                           class="climb-button"
+                         >
+                             🏆 View Leaderboard →
+                          </a>
 
                     </div>
 
@@ -859,15 +859,20 @@
     // =========================================================
 
     const shareButton = document.getElementById("shareButton");
-    const copyButton = document.getElementById("copyButton");
+const copyButton = document.getElementById("copyButton");
 
-    const shareUrl = window.location.origin;
+const shareUrl =
+    "{{ referral_link|default('', true) }}";
 
-    const shareTitle = "Join ORQELETH AI";
+if (!shareUrl) {
+    console.error("Referral link was not provided by Flask.");
+}
 
-    const shareText =
-        "I'm joining ORQELETH AI early access. " +
-        "Join the queue and climb the Founding 100 leaderboard.";
+const shareTitle = "Join ORQELETH AI";
+
+const shareText =
+    "I'm joining ORQELETH AI early access. " +
+    "Join the queue and climb the Founding 100 leaderboard.";
 
 
     // =========================================================
