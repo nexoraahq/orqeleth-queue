@@ -846,6 +846,42 @@ def verify_email(token):
 
 
 # ============================================================
+# LEADERBOARD API
+# ============================================================
+
+@app.route("/api/leaderboard")
+def leaderboard_api():
+
+    connection = get_db()
+
+    users = connection.execute(
+        """
+        SELECT name, verified_referrals, created_at
+        FROM users
+        WHERE is_verified = 1
+        ORDER BY verified_referrals DESC, created_at ASC
+        LIMIT 100
+        """
+    ).fetchall()
+
+    connection.close()
+
+    leaderboard = []
+
+    for rank, user in enumerate(users, start=1):
+        leaderboard.append({
+            "rank": rank,
+            "name": user["name"],
+            "verified_referrals": user["verified_referrals"]
+        })
+
+    return jsonify({
+        "success": True,
+        "leaderboard": leaderboard
+    })
+
+
+# ============================================================
 # DASHBOARD
 # ============================================================
 
