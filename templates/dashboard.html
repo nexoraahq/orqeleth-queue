@@ -44,12 +44,15 @@
             cursor: pointer;
         }
 
-        /* BACKGROUND */
+        /* =========================================================
+           BACKGROUND
+        ========================================================= */
 
         .background {
             position: fixed;
             inset: 0;
             z-index: -2;
+
             background:
                 radial-gradient(
                     circle at 50% 0%,
@@ -68,7 +71,9 @@
             position: fixed;
             inset: 0;
             z-index: -1;
+
             opacity: 0.035;
+
             background-image:
                 linear-gradient(
                     rgba(255,255,255,0.7) 1px,
@@ -79,16 +84,20 @@
                     rgba(255,255,255,0.7) 1px,
                     transparent 1px
                 );
+
             background-size: 55px 55px;
             pointer-events: none;
         }
 
-        /* NAVBAR */
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
 
         .navbar {
             height: 82px;
             width: 100%;
             padding: 0 6%;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -135,7 +144,9 @@
             transform: translateY(-2px);
         }
 
-        /* MAIN */
+        /* =========================================================
+           MAIN
+        ========================================================= */
 
         .main {
             width: min(1100px, 92%);
@@ -143,7 +154,9 @@
             padding: 65px 0 100px;
         }
 
-        /* HERO */
+        /* =========================================================
+           HERO
+        ========================================================= */
 
         .hero {
             text-align: center;
@@ -173,8 +186,11 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
+
             background: #65f2a2;
-            box-shadow: 0 0 12px rgba(101,242,162,0.8);
+
+            box-shadow:
+                0 0 12px rgba(101,242,162,0.8);
         }
 
         .hero h1 {
@@ -200,7 +216,9 @@
             line-height: 1.7;
         }
 
-        /* CARDS */
+        /* =========================================================
+           CARDS
+        ========================================================= */
 
         .cards {
             display: grid;
@@ -237,7 +255,9 @@
             text-transform: uppercase;
         }
 
-        /* RANK */
+        /* =========================================================
+           RANK
+        ========================================================= */
 
         .rank-card {
             min-height: 310px;
@@ -300,7 +320,9 @@
             line-height: 1.7;
         }
 
-        /* PROFILE */
+        /* =========================================================
+           PROFILE
+        ========================================================= */
 
         .profile-card {
             min-height: 310px;
@@ -366,7 +388,9 @@
             font-weight: 800;
         }
 
-        /* SHARE */
+        /* =========================================================
+           SHARE
+        ========================================================= */
 
         .share-card {
             grid-column: 1 / -1;
@@ -446,7 +470,9 @@
                 0 12px 30px rgba(118,54,255,0.25);
         }
 
-        /* CLIMB */
+        /* =========================================================
+           CLIMB
+        ========================================================= */
 
         .climb-card {
             grid-column: 1 / -1;
@@ -543,7 +569,9 @@
             background: rgba(140,75,255,0.15);
         }
 
-        /* MOBILE */
+        /* =========================================================
+           MOBILE
+        ========================================================= */
 
         @media (max-width: 800px) {
 
@@ -623,7 +651,9 @@
     <div class="background"></div>
     <div class="grid"></div>
 
-    <!-- NAVBAR -->
+    <!-- =========================================================
+         NAVBAR
+    ========================================================= -->
 
     <header class="navbar">
 
@@ -632,18 +662,21 @@
             <span class="logo-ai">AI</span>
         </a>
 
-       <a href="/#leaderboard" class="leaderboard-link">
-    Leaderboard
-       </a>
+        <a href="/#leaderboard" class="leaderboard-link">
+            Leaderboard
+        </a>
 
     </header>
 
-
-    <!-- MAIN -->
+    <!-- =========================================================
+         MAIN
+    ========================================================= -->
 
     <main class="main">
 
-        <!-- HERO -->
+        <!-- =====================================================
+             HERO
+        ====================================================== -->
 
         <section class="hero">
 
@@ -665,12 +698,15 @@
 
         </section>
 
-
-        <!-- DASHBOARD CARDS -->
+        <!-- =====================================================
+             DASHBOARD CARDS
+        ====================================================== -->
 
         <section class="cards">
 
-            <!-- RANK CARD -->
+            <!-- =================================================
+                 RANK CARD
+            ================================================== -->
 
             <div class="card rank-card">
 
@@ -710,8 +746,9 @@
 
             </div>
 
-
-            <!-- PROFILE CARD -->
+            <!-- =================================================
+                 PROFILE CARD
+            ================================================== -->
 
             <div class="card profile-card">
 
@@ -741,8 +778,9 @@
 
             </div>
 
-
-            <!-- SHARE CARD -->
+            <!-- =================================================
+                 SHARE CARD
+            ================================================== -->
 
             <div class="card share-card">
 
@@ -794,8 +832,9 @@
 
             </div>
 
-
-            <!-- CLIMB CARD -->
+            <!-- =================================================
+                 CLIMB CARD
+            ================================================== -->
 
             <div class="card climb-card">
 
@@ -833,12 +872,12 @@
 
                     <div class="climb-button-area">
 
-                       <a
-                          href="/#leaderboard"
-                           class="climb-button"
-                         >
-                             🏆 View Leaderboard →
-                          </a>
+                        <a
+                            href="/#leaderboard"
+                            class="climb-button"
+                        >
+                            🏆 View Leaderboard →
+                        </a>
 
                     </div>
 
@@ -849,192 +888,271 @@
         </section>
 
     </main>
+        </main>
 
-</body>
-</html>
-<script>
+    <!-- =========================================================
+         DASHBOARD ACTIONS
+    ========================================================= -->
 
-    // =========================================================
-    // ORQELETH AI — DASHBOARD ACTIONS
-    // =========================================================
+    <script>
 
-    const shareButton = document.getElementById("shareButton");
-const copyButton = document.getElementById("copyButton");
+        // =========================================================
+        // ORQELETH AI — DASHBOARD ACTIONS
+        // =========================================================
 
-const shareUrl =
-    "{{ referral_link|default('', true) }}";
+        const shareButton =
+            document.getElementById("shareButton");
 
-if (!shareUrl) {
-    console.error("Referral link was not provided by Flask.");
-}
-
-const shareTitle = "Join ORQELETH AI";
-
-const shareText =
-    "I'm joining ORQELETH AI early access. " +
-    "Join the queue and climb the Founding 100 leaderboard.";
+        const copyButton =
+            document.getElementById("copyButton");
 
 
-    // =========================================================
-    // SHARE
-    // =========================================================
+        // =========================================================
+        // REFERRAL LINK
+        // =========================================================
 
-    if (shareButton) {
+        const shareUrl =
+            "{{ referral_link|default('', true) }}";
 
-        shareButton.addEventListener("click", async function () {
+        if (!shareUrl) {
+            console.error(
+                "Referral link was not provided by Flask."
+            );
+        }
 
-            try {
 
-                if (navigator.share) {
+        // =========================================================
+        // SHARE CONTENT
+        // =========================================================
 
-                    await navigator.share({
-                        title: shareTitle,
-                        text: shareText,
-                        url: shareUrl
-                    });
+        const shareTitle =
+            "Join ORQELETH AI";
 
-                } else {
+        const shareText =
+            "I'm joining ORQELETH AI early access. " +
+            "Join the queue and climb the Founding 100 leaderboard.";
 
-                    await copyText(shareUrl);
 
-                    showButtonMessage(
-                        shareButton,
-                        "✓ Link Copied"
-                    );
+        // =========================================================
+        // SHARE BUTTON
+        // =========================================================
+
+        if (shareButton) {
+
+            shareButton.addEventListener(
+                "click",
+                async function () {
+
+                    try {
+
+                        /*
+                         * Use the native share menu when supported.
+                         */
+
+                        if (
+                            navigator.share &&
+                            shareUrl
+                        ) {
+
+                            await navigator.share({
+                                title: shareTitle,
+                                text: shareText,
+                                url: shareUrl
+                            });
+
+                        } else {
+
+                            /*
+                             * Fallback:
+                             * copy referral link.
+                             */
+
+                            await copyText(shareUrl);
+
+                            showButtonMessage(
+                                shareButton,
+                                "✓ Link Copied"
+                            );
+                        }
+
+                    } catch (error) {
+
+                        /*
+                         * The user may have cancelled
+                         * the native share window.
+                         */
+
+                        if (
+                            error &&
+                            error.name === "AbortError"
+                        ) {
+                            return;
+                        }
+
+                        /*
+                         * If native sharing fails,
+                         * try copying the link instead.
+                         */
+
+                        try {
+
+                            await copyText(shareUrl);
+
+                            showButtonMessage(
+                                shareButton,
+                                "✓ Link Copied"
+                            );
+
+                        } catch (copyError) {
+
+                            showButtonMessage(
+                                shareButton,
+                                "Copy failed"
+                            );
+
+                        }
+
+                    }
 
                 }
+            );
 
-            } catch (error) {
+        }
 
-                // User cancelled native share.
-                // Do nothing in that case.
 
-                if (error && error.name !== "AbortError") {
+        // =========================================================
+        // COPY LINK BUTTON
+        // =========================================================
+
+        if (copyButton) {
+
+            copyButton.addEventListener(
+                "click",
+                async function () {
 
                     try {
 
                         await copyText(shareUrl);
 
                         showButtonMessage(
-                            shareButton,
-                            "✓ Link Copied"
+                            copyButton,
+                            "✓ Copied!"
                         );
 
-                    } catch (copyError) {
+                    } catch (error) {
 
                         showButtonMessage(
-                            shareButton,
+                            copyButton,
                             "Copy failed"
                         );
 
                     }
 
                 }
+            );
 
+        }
+
+
+        // =========================================================
+        // COPY FUNCTION
+        // =========================================================
+
+        async function copyText(text) {
+
+            if (!text) {
+                throw new Error(
+                    "No referral link available."
+                );
             }
 
-        });
 
-    }
+            /*
+             * Modern clipboard API.
+             */
+
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+
+                await navigator.clipboard.writeText(text);
+
+                return;
+            }
 
 
-    // =========================================================
-    // COPY LINK
-    // =========================================================
+            /*
+             * Desktop / browser fallback.
+             */
 
-    if (copyButton) {
+            const textarea =
+                document.createElement("textarea");
 
-        copyButton.addEventListener("click", async function () {
+            textarea.value = text;
 
-            try {
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            textarea.style.top = "0";
 
-                await copyText(shareUrl);
+            textarea.setAttribute(
+                "readonly",
+                ""
+            );
 
-                showButtonMessage(
-                    copyButton,
-                    "✓ Copied!"
-                );
+            document.body.appendChild(textarea);
 
-            } catch (error) {
+            textarea.focus();
+            textarea.select();
 
-                showButtonMessage(
-                    copyButton,
+            const successful =
+                document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            if (!successful) {
+
+                throw new Error(
                     "Copy failed"
                 );
 
             }
 
-        });
-
-    }
+        }
 
 
-    // =========================================================
-    // COPY FUNCTION
-    // =========================================================
+        // =========================================================
+        // BUTTON FEEDBACK
+        // =========================================================
 
-    async function copyText(text) {
-
-        if (
-            navigator.clipboard &&
-            window.isSecureContext
+        function showButtonMessage(
+            button,
+            message
         ) {
 
-            await navigator.clipboard.writeText(text);
+            if (!button) {
+                return;
+            }
 
-            return;
-
-        }
-
-
-        // Desktop fallback
-
-        const textarea =
-            document.createElement("textarea");
-
-        textarea.value = text;
-
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        textarea.style.top = "0";
-
-        document.body.appendChild(textarea);
-
-        textarea.focus();
-        textarea.select();
-
-        const successful =
-            document.execCommand("copy");
-
-        document.body.removeChild(textarea);
-
-        if (!successful) {
-
-            throw new Error("Copy failed");
-
-        }
-
-    }
-
-
-    // =========================================================
-    // BUTTON FEEDBACK
-    // =========================================================
-
-    function showButtonMessage(button, message) {
-
-        const originalText =
-            button.innerHTML;
-
-        button.innerHTML = message;
-
-        setTimeout(function () {
+            const originalText =
+                button.innerHTML;
 
             button.innerHTML =
-                originalText;
+                message;
 
-        }, 1800);
+            setTimeout(
+                function () {
 
-    }
+                    button.innerHTML =
+                        originalText;
 
-</script>
+                },
+                1800
+            );
+
+        }
+
+    </script>
+
+</body>
+</html>
